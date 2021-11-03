@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "593458370937",
+    "project_id": "delta-squad-d243a",
+    "storage_bucket": "delta-squad-d243a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593458370937:android:ab70f7a34bed8b33dff7a8",
+        "android_client_info": {
+          "package_name": "com.example.delta_squad_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "593458370937-2bhv9m7t20l9qaa4j228s7tr2lb4is2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpdp_pjdzvegB8lvtiRLMfs_g9ZL2B6qI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "593458370937-2bhv9m7t20l9qaa4j228s7tr2lb4is2f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
