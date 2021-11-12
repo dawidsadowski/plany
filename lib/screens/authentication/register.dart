@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 class Register extends StatefulWidget {
   final Function toggleScreen;
 
-  const Register({Key? key, required this.toggleScreen}) : super(key: key);
+  Register({Key? key, required this.toggleScreen}) : super(key: key);
 
   @override
   _RegisterState createState() => _RegisterState();
@@ -52,7 +52,7 @@ class _RegisterState extends State<Register> {
                           color: Theme.of(context).primaryColor)),
                   SizedBox(height: 60),
                   Text(
-                    "Witaj",
+                    "Rejestracja",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),

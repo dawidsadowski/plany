@@ -12,9 +12,9 @@ class AuthServices with ChangeNotifier {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Future? register(String email, String password) async {
-    setLoading(true);
 
     try {
+      setLoading(true);
       UserCredential authResult = await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
       User? user = authResult.user;

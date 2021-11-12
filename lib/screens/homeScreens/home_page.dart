@@ -25,7 +25,10 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Center(
-        child: Text("Strona gówna"),
+        child: Image.asset(
+            'assets/logo.png',
+            width: 200,
+        ),
       ),
     );
   }

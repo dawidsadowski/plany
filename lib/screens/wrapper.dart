@@ -1,3 +1,4 @@
+import 'package:delta_squad_app/screens/authentication/authentication.dart';
 import 'package:delta_squad_app/screens/authentication/login.dart';
 import 'package:delta_squad_app/screens/homeScreens/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +15,7 @@ class Wrapper extends StatelessWidget {
     if(user != null) {
       return HomePage();
     } else {
-      return Login(toggleScreen: null);
+      return Authentication();
     }
 
     return Container();

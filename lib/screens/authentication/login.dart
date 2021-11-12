@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
-  final Function? toggleScreen;
+  final Function toggleScreen;
 
-  const Login({Key? key, required this.toggleScreen}) : super(key: key);
+  Login({Key? key, required this.toggleScreen}) : super(key: key);
 
   @override
   _LoginState createState() => _LoginState();
@@ -52,7 +52,7 @@ class _LoginState extends State<Login> {
                           color: Theme.of(context).primaryColor)),
                   SizedBox(height: 60),
                   Text(
-                    "Witaj, Kutasiarzu!",
+                    "Logowanie",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
@@ -96,7 +96,6 @@ class _LoginState extends State<Login> {
                   MaterialButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          // TODO: Uwierzytelnianie
                           print("Email:    ${_emailController.text}");
                           print("Password: ${_passwordController.text}");
                           await loginProvider.login(
@@ -106,9 +105,7 @@ class _LoginState extends State<Login> {
                         }
                       },
                       height: 60,
-                      minWidth:
-                          loginProvider.isLoading ? null : double.infinity,
-                      // TODO: Co kurwa?
+                      minWidth: double.infinity,
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -125,7 +122,7 @@ class _LoginState extends State<Login> {
                     children: [
                       Text("Nie posiadasz konta?"),
                       TextButton(
-                          onPressed: () => widget.toggleScreen!(),
+                          onPressed: () => widget.toggleScreen(),
                           child: Text("Zarejestruj się"))
                     ],
                   )
