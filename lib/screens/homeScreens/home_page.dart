@@ -14,6 +14,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Strona główna"),
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.exit_to_app))
+        ],
       ),
       body: Center(
         child: Text("Strona gówna"),

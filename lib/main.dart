@@ -1,6 +1,10 @@
+import 'package:delta_squad_app/screens/authentication/authentication.dart';
 import 'package:delta_squad_app/screens/authentication/login.dart';
+import 'package:delta_squad_app/services/authentication/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,13 +20,20 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return ErrorWidget();
-        } else if(snapshot.hasData) {
-          return MaterialApp(
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
+        } else if (snapshot.hasData) {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider<AuthServices>.value(value: AuthServices()),
+              StreamProvider<User?>.value(
+                  value: AuthServices().user, initialData: null)
+            ],
+            child: MaterialApp(
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
+              ),
+              debugShowCheckedModeBanner: false,
+              home: Authentication(),
             ),
-            debugShowCheckedModeBanner: false,
-            home: Login(),
           );
         } else {
           return Loading();
@@ -38,15 +49,10 @@ class ErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            Icon(Icons.error),
-            Text("Ojoj... Coś poszło nie tak.")
-          ],
-        )
-      )
-    );
+        body: Center(
+            child: Column(
+      children: [Icon(Icons.error), Text("Ojoj... Coś poszło nie tak.")],
+    )));
   }
 }
 
@@ -55,10 +61,6 @@ class Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator()
-      )
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
