@@ -1,5 +1,6 @@
 import 'package:delta_squad_app/screens/authentication/authentication.dart';
 import 'package:delta_squad_app/screens/authentication/login.dart';
+import 'package:delta_squad_app/screens/wrapper.dart';
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
                 primarySwatch: Colors.blue,
               ),
               debugShowCheckedModeBanner: false,
-              home: Authentication(),
+              home: Wrapper(),
             ),
           );
         } else {
