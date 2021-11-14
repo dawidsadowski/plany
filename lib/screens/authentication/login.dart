@@ -1,3 +1,4 @@
+import 'package:delta_squad_app/controllers/login_controller.dart';
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<AuthServices>(context);
-
+    final googleProvider = Provider.of<LoginController>(context,listen: false);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -100,8 +101,7 @@ class _LoginState extends State<Login> {
                           print("Password: ${_passwordController.text}");
                           await loginProvider.login(
                               _emailController.text.trim(),
-                              _passwordController.text.trim()
-                          );
+                              _passwordController.text.trim());
                         }
                       },
                       height: 60,
@@ -117,6 +117,18 @@ class _LoginState extends State<Login> {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),
                   SizedBox(height: 20),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                    children:[
+                    GestureDetector(
+                        child: Image.asset(
+                          "assets/google-logo.png",
+                          width: 80,
+                        ),
+                        onTap: () {
+                          googleProvider.googleLogin();
+                        }),
+                  ]),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
