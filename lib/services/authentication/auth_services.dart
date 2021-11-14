@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthServices with ChangeNotifier {
   bool _isLoading = false;
@@ -15,8 +18,11 @@ class AuthServices with ChangeNotifier {
 
     try {
       setLoading(true);
-      UserCredential authResult = await firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential authResult = (await firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password).then((value) => {postDetailsToFirestore()})
+          .catchError((e) {
+        Fluttertoast.showToast(msg: e!.message);
+      })) as UserCredential;
       User? user = authResult.user;
       setLoading(false);
       return user;
@@ -32,6 +38,21 @@ class AuthServices with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  postDetailsToFirestore() async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    User? user = firebaseAuth.currentUser;
+
+    UserModel userModel = UserModel();
+    userModel.email = user!.email;
+    userModel.uid = user.uid;
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(user.uid)
+        .set(userModel.toMap());
+    Fluttertoast.showToast(msg: "Utworzono konto ");
   }
 
   Future? login(String email, String password) async {
