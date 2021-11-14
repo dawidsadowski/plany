@@ -75,7 +75,7 @@ class _LoginState extends State<Login> {
                   TextFormField(
                     controller: _passwordController,
                     validator: (val) =>
-                        val!.length < 3 ? "Wprowadź więcej niż 6 znaków" : null,
+                        val!.length < 6 ? "Wprowadź więcej niż 6 znaków" : null,
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
                         hintText: "Hasło",

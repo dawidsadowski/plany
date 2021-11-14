@@ -15,11 +15,11 @@ class AuthServices with ChangeNotifier {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Future? register(String email, String password) async {
-
     try {
       setLoading(true);
       UserCredential authResult = (await firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password).then((value) => {postDetailsToFirestore()})
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((value) => {postDetailsToFirestore()})
           .catchError((e) {
         Fluttertoast.showToast(msg: e!.message);
       })) as UserCredential;
@@ -29,10 +29,10 @@ class AuthServices with ChangeNotifier {
     } on SocketException {
       setLoading(false);
       setMessage("Brak połączenia z internetem.");
-    } on FirebaseAuthException catch(e) {
+    } on FirebaseAuthException catch (e) {
       setLoading(false);
       setMessage(e.message);
-    } catch(e) {
+    } catch (e) {
       setLoading(false);
       setMessage("Wystąpił nieznany błąd.");
     }
@@ -50,8 +50,8 @@ class AuthServices with ChangeNotifier {
 
     await firebaseFirestore
         .collection("users")
-        .doc(user.uid)
-        .set(userModel.toMap());
+        .doc(userModel.email)
+        .set(userModel.sendToServerRegister());
     Fluttertoast.showToast(msg: "Utworzono konto ");
   }
 
@@ -67,11 +67,11 @@ class AuthServices with ChangeNotifier {
     } on SocketException {
       setLoading(false);
       setMessage("Brak połączenia z internetem.");
-    } on FirebaseAuthException catch(e) {
+    } on FirebaseAuthException catch (e) {
       setLoading(false);
       print(e.message);
       setMessage(e.message);
-    } catch(e) {
+    } catch (e) {
       setLoading(false);
       setMessage("Wystąpił nieznany błąd.");
     }
