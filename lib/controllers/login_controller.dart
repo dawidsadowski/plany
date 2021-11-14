@@ -1,5 +1,6 @@
 import 'package:delta_squad_app/models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginController with ChangeNotifier {
@@ -20,6 +21,10 @@ class LoginController with ChangeNotifier {
 
     // call
     notifyListeners();
+    print(userDetails!.email);
+    print(userDetails!.imie);
+    Fluttertoast.showToast(msg: "ZALOGOWANO");
+
   }
 
   // function for facebook login
