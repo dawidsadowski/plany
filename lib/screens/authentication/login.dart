@@ -1,7 +1,7 @@
-import 'package:delta_squad_app/controllers/login_controller.dart';
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class Login extends StatefulWidget {
   final Function toggleScreen;
@@ -36,7 +36,6 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<AuthServices>(context);
-    final googleProvider = Provider.of<LoginController>(context,listen: false);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -51,7 +50,7 @@ class _LoginState extends State<Login> {
                       onPressed: () {},
                       icon: Icon(Icons.arrow_back_ios,
                           color: Theme.of(context).primaryColor)),
-                  SizedBox(height: 60),
+                  SizedBox(height: 30),
                   Text(
                     "Logowanie",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -116,19 +115,6 @@ class _LoginState extends State<Login> {
                           : Text("Zaloguj się",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),
-                  SizedBox(height: 20),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                    children:[
-                    GestureDetector(
-                        child: Image.asset(
-                          "assets/google-logo.png",
-                          width: 80,
-                        ),
-                        onTap: () {
-                          googleProvider.googleLogin();
-                        }),
-                  ]),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -137,7 +123,27 @@ class _LoginState extends State<Login> {
                           onPressed: () => widget.toggleScreen(),
                           child: Text("Zarejestruj się"))
                     ],
-                  )
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          SignInButton(
+                            Buttons.Google,
+                            text: "Zaloguj się z Google",
+                            onPressed: () => loginProvider.loginWithGoogle(),
+                          ),
+                          SignInButton(
+                            Buttons.Facebook,
+                            text: "Zaloguj się z Facebook",
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

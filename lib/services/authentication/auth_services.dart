@@ -5,6 +5,7 @@ import 'package:delta_squad_app/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthServices with ChangeNotifier {
   bool _isLoading = false;
@@ -13,6 +14,11 @@ class AuthServices with ChangeNotifier {
 
   String get errorMessage => _errorMessage;
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+  // Google
+  var _googleSignIn = GoogleSignIn();
+  GoogleSignInAccount? googleSignInAccount;
+  UserModel? userDetails;
 
   Future? register(String email, String password) async {
     try {
@@ -77,6 +83,34 @@ class AuthServices with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future? loginWithGoogle() async {
+    this.googleSignInAccount = await _googleSignIn.signIn();
+    // inserting values to our user details model
+
+    userDetails = UserModel(
+      imie: googleSignInAccount!.displayName,
+      email: googleSignInAccount!.email,
+    );
+
+    // call
+    notifyListeners();
+    print(userDetails!.email);
+    print(userDetails!.imie);
+    Fluttertoast.showToast(msg: "ZALOGOWANO");
+
+
+    // Dawid coś tam dupka
+    final GoogleSignInAuthentication googleSignInAuthentication =
+    await googleSignInAccount!.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    await firebaseAuth.signInWithCredential(credential);
   }
 
   Future logout() async {

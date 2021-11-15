@@ -1,4 +1,3 @@
-import 'package:delta_squad_app/controllers/login_controller.dart';
 import 'package:delta_squad_app/screens/wrapper.dart';
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,9 +23,6 @@ class MyApp extends StatelessWidget {
           return MultiProvider(
             providers: [
               ChangeNotifierProvider<AuthServices>.value(value: AuthServices()),
-              ChangeNotifierProvider(
-                create: (context) => LoginController(),
-              ),
               StreamProvider<User?>.value(
                   value: AuthServices().user, initialData: null)
             ],
