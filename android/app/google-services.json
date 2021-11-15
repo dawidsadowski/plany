@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "593458370937",
+    "firebase_url": "https://delta-squad-d243a-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "delta-squad-d243a",
     "storage_bucket": "delta-squad-d243a.appspot.com"
   },
@@ -13,6 +14,30 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "593458370937-fs2s34v8sgdoia251u1huda108juq7b2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.delta_squad_app",
+            "certificate_hash": "ec49a1d6b5d234a3a26df0e0fb2bcab0e007dfaf"
+          }
+        },
+        {
+          "client_id": "593458370937-j85mc89b3685m549fmhqhdskmpbiq7qo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.delta_squad_app",
+            "certificate_hash": "00fde51cf8fd56a8aed71e417061706371770642"
+          }
+        },
+        {
+          "client_id": "593458370937-mr4l91athapt15lv2o0okvhiqqibrn3k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.delta_squad_app",
+            "certificate_hash": "44cd940aa4bb923d1405c472f29298a808f663a5"
+          }
+        },
         {
           "client_id": "593458370937-2bhv9m7t20l9qaa4j228s7tr2lb4is2f.apps.googleusercontent.com",
           "client_type": 3

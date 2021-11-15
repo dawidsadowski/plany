@@ -1,18 +1,17 @@
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 
-class Login extends StatefulWidget {
+class Register extends StatefulWidget {
   final Function toggleScreen;
 
-  Login({Key? key, required this.toggleScreen}) : super(key: key);
+  Register({Key? key, required this.toggleScreen}) : super(key: key);
 
   @override
-  _LoginState createState() => _LoginState();
+  _RegisterState createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
+class _RegisterState extends State<Register> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   final _formKey = GlobalKey<FormState>();
@@ -35,7 +34,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final loginProvider = Provider.of<AuthServices>(context);
+    final registerProvider = Provider.of<AuthServices>(context);
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -50,14 +50,14 @@ class _LoginState extends State<Login> {
                       onPressed: () {},
                       icon: Icon(Icons.arrow_back_ios,
                           color: Theme.of(context).primaryColor)),
-                  SizedBox(height: 30),
+                  SizedBox(height: 60),
                   Text(
-                    "Logowanie",
+                    "Rejestracja",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
                   Text(
-                    "Zaloguj się, aby kontynuować",
+                    "Utwórz konto, aby kontynuować",
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   SizedBox(height: 30),
@@ -97,54 +97,56 @@ class _LoginState extends State<Login> {
                   MaterialButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          print("Email:    ${_emailController.text}");
-                          print("Password: ${_passwordController.text}");
-                          await loginProvider.login(
-                              _emailController.text.trim(),
-                              _passwordController.text.trim());
+                          // TODO: Uwierzytelnianie
+                          print("Email: ${_emailController.text}");
+                          print("Email: ${_passwordController.text}");
+
+                          await registerProvider.register(
+                            _emailController.text.trim(),
+                            _passwordController.text.trim(),
+                          );
                         }
                       },
                       height: 60,
-                      minWidth: double.infinity,
+                      minWidth:
+                          registerProvider.isLoading ? null : double.infinity,
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: loginProvider.isLoading
-                          ? CircularProgressIndicator()
-                          : Text("Zaloguj się",
+                      child: registerProvider.isLoading
+                          ? CircularProgressIndicator(
+                              valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Colors.white))
+                          : Text("Zarejestuj się",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Nie posiadasz konta?"),
+                      Text("Posiadasz już konto?"),
                       TextButton(
                           onPressed: () => widget.toggleScreen(),
-                          child: Text("Zarejestruj się"))
+                          child: Text("Zaloguj się"))
                     ],
                   ),
                   SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          SignInButton(
-                            Buttons.Google,
-                            text: "Zaloguj się z Google",
-                            onPressed: () => loginProvider.loginWithGoogle(),
-                          ),
-                          SignInButton(
-                            Buttons.Facebook,
-                            text: "Zaloguj się z Facebook",
-                            onPressed: () => loginProvider.loginWithFacebook(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  if (registerProvider.errorMessage != "_hidden")
+                    Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        color: Colors.amberAccent,
+                        child: ListTile(
+                            title: Text(registerProvider.errorMessage),
+                            leading: Icon(Icons.error),
+                            trailing: IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () =>
+                                  registerProvider.setMessage(null),
+                            )
+                        )
+                    )
                 ],
               ),
             ),
