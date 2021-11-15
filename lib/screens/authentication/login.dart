@@ -81,6 +81,7 @@ class _LoginState extends State<Login> {
                         hintText: "Hasło",
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
+                            splashColor: Colors.transparent,
                             icon: Icon(_passwordVisible
                                 ? Icons.remove_red_eye_rounded
                                 : Icons.remove_red_eye_outlined),

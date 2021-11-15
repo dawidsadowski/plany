@@ -10,7 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthServices with ChangeNotifier {
   bool _isLoading = false;
-  String _errorMessage = "Test"; // TODO: ???
+  String _errorMessage = "_hidden"; // TODO: ???
   bool get isLoading => _isLoading;
 
   String get errorMessage => _errorMessage;
