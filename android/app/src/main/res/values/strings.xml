@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DeltaSzwadron</string>
+    <string name="facebook_app_id">419145929934778</string>
+    <string name="fb_login_protocol_scheme">fb419145929934778</string>
+</resources>

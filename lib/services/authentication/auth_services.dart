@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -98,10 +99,8 @@ class AuthServices with ChangeNotifier {
     notifyListeners();
     print(userDetails!.email);
     print(userDetails!.imie);
-    Fluttertoast.showToast(msg: "ZALOGOWANO");
+    Fluttertoast.showToast(msg: "Zalogowano z Google");
 
-
-    // Dawid coś tam dupka
     final GoogleSignInAuthentication googleSignInAuthentication =
     await googleSignInAccount!.authentication;
 
@@ -113,8 +112,42 @@ class AuthServices with ChangeNotifier {
     await firebaseAuth.signInWithCredential(credential);
   }
 
+  Future? loginWithFacebook() async {
+    var result = await FacebookAuth.i.login(
+      permissions: ["public_profile", "email"],
+    );
+
+    print(result.message);
+
+    // check the status of our login
+    if (result.status == LoginStatus.success) {
+      final requestData = await FacebookAuth.i.getUserData(
+        fields: "email, name, picture",
+      );
+
+      this.userDetails = new UserModel(
+        imie: requestData["name"],
+        email: requestData["email"],
+      );
+
+      notifyListeners();
+      print(userDetails!.email);
+      print(userDetails!.imie);
+      Fluttertoast.showToast(msg: "Zalogowano z Facebook");
+
+      final AuthCredential facebookCredential =
+      FacebookAuthProvider.credential(result.accessToken!.token);
+
+      await firebaseAuth.signInWithCredential(facebookCredential);
+    }
+  }
+
   Future logout() async {
+    this.googleSignInAccount = await _googleSignIn.signOut();
+    await FacebookAuth.i.logOut();
     await firebaseAuth.signOut();
+    userDetails = null;
+    notifyListeners();
   }
 
   void setLoading(val) {

@@ -138,7 +138,7 @@ class _LoginState extends State<Login> {
                           SignInButton(
                             Buttons.Facebook,
                             text: "Zaloguj się z Facebook",
-                            onPressed: () {},
+                            onPressed: () => loginProvider.loginWithFacebook(),
                           ),
                         ],
                       ),
