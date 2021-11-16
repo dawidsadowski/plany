@@ -56,7 +56,7 @@ class _RegisterState extends State<Register> {
                       onPressed: () {},
                       icon: Icon(Icons.arrow_back_ios,
                           color: Theme.of(context).primaryColor)),
-                  SizedBox(height: 60),
+                  SizedBox(height: 30),
                   Text(
                     "Rejestracja",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
