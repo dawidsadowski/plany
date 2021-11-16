@@ -5,8 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'screens/homeScreens/main_menu.dart';
-
 void main() => runApp(const MaterialApp(
       title: 'Changed for Navigation Purpose',
       home: MyApp(),
