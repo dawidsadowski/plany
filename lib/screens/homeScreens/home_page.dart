@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/models/user_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/schedule.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +16,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  User? user = FirebaseAuth.instance.currentUser;
+  UserModel loggedInUser = UserModel();
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.email)
+        .get()
+        .then((value) {
+      this.loggedInUser = UserModel.fromMap(value.data());
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<AuthServices>(context);
@@ -37,13 +57,13 @@ class _HomePageState extends State<HomePage> {
                     image:  AssetImage('assets/logo.png')
                 ),
                 SizedBox(height: 30),
-                const Text(
-                  "User.name User.surname",
+                Text(
+                  loggedInUser.imie! +" "+ loggedInUser.nazwisko!,
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 30),
-                const Text(
-                  "Wydział XXX\n Kierunek YYY\n Grupa ZZZ",
+                Text(
+                  "Wydział: "+ loggedInUser.wydzial! +"\nKierunek: "+ loggedInUser.kierunek!,
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 30),
@@ -76,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: (){
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Settings()),
+                      MaterialPageRoute(builder: (context) => SettingsView()),
                     );
                   },
                 ),
