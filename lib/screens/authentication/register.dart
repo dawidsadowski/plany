@@ -81,6 +81,7 @@ class _RegisterState extends State<Register> {
                         hintText: "Hasło",
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
+                            splashColor: Colors.transparent,
                             icon: Icon(_passwordVisible
                                 ? Icons.remove_red_eye_rounded
                                 : Icons.remove_red_eye_outlined),
@@ -116,14 +117,11 @@ class _RegisterState extends State<Register> {
                       ),
                       child: registerProvider.isLoading
                           ? CircularProgressIndicator(
-                        valueColor: new AlwaysStoppedAnimation<Color>(
-                          Colors.white
-                        )
-                      )
+                              valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Colors.white))
                           : Text("Zarejestuj się",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),
-                  SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -134,17 +132,21 @@ class _RegisterState extends State<Register> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  if (registerProvider.errorMessage != null)
+                  if (registerProvider.errorMessage != "_hidden")
                     Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         color: Colors.amberAccent,
                         child: ListTile(
                             title: Text(registerProvider.errorMessage),
                             leading: Icon(Icons.error),
                             trailing: IconButton(
                               icon: Icon(Icons.close),
-                              onPressed: () => registerProvider.setMessage(null),
-                            )))
+                              onPressed: () =>
+                                  registerProvider.setMessage(null),
+                            )
+                        )
+                    )
                 ],
               ),
             ),

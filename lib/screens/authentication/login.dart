@@ -1,6 +1,7 @@
 import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class Login extends StatefulWidget {
   final Function toggleScreen;
@@ -35,7 +36,6 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<AuthServices>(context);
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
                       onPressed: () {},
                       icon: Icon(Icons.arrow_back_ios,
                           color: Theme.of(context).primaryColor)),
-                  SizedBox(height: 60),
+                  SizedBox(height: 30),
                   Text(
                     "Logowanie",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -81,6 +81,7 @@ class _LoginState extends State<Login> {
                         hintText: "Hasło",
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
+                            splashColor: Colors.transparent,
                             icon: Icon(_passwordVisible
                                 ? Icons.remove_red_eye_rounded
                                 : Icons.remove_red_eye_outlined),
@@ -100,8 +101,7 @@ class _LoginState extends State<Login> {
                           print("Password: ${_passwordController.text}");
                           await loginProvider.login(
                               _emailController.text.trim(),
-                              _passwordController.text.trim()
-                          );
+                              _passwordController.text.trim());
                         }
                       },
                       height: 60,
@@ -116,7 +116,6 @@ class _LoginState extends State<Login> {
                           : Text("Zaloguj się",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),
-                  SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -125,7 +124,27 @@ class _LoginState extends State<Login> {
                           onPressed: () => widget.toggleScreen(),
                           child: Text("Zarejestruj się"))
                     ],
-                  )
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          SignInButton(
+                            Buttons.Google,
+                            text: "Zaloguj się z Google",
+                            onPressed: () => loginProvider.loginWithGoogle(),
+                          ),
+                          SignInButton(
+                            Buttons.Facebook,
+                            text: "Zaloguj się z Facebook",
+                            onPressed: () => loginProvider.loginWithFacebook(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

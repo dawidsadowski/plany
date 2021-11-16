@@ -4,15 +4,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthServices with ChangeNotifier {
   bool _isLoading = false;
-  String _errorMessage = "Test"; // TODO: ???
+  String _errorMessage = "_hidden"; // TODO: ???
   bool get isLoading => _isLoading;
 
   String get errorMessage => _errorMessage;
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+  // Google
+  var _googleSignIn = GoogleSignIn();
+  GoogleSignInAccount? googleSignInAccount;
+  UserModel? userDetails;
 
   Future? register(String email, String password) async {
     try {
@@ -79,8 +86,68 @@ class AuthServices with ChangeNotifier {
     notifyListeners();
   }
 
+  Future? loginWithGoogle() async {
+    this.googleSignInAccount = await _googleSignIn.signIn();
+    // inserting values to our user details model
+
+    userDetails = UserModel(
+      imie: googleSignInAccount!.displayName,
+      email: googleSignInAccount!.email,
+    );
+
+    // call
+    notifyListeners();
+    print(userDetails!.email);
+    print(userDetails!.imie);
+    Fluttertoast.showToast(msg: "Zalogowano z Google");
+
+    final GoogleSignInAuthentication googleSignInAuthentication =
+    await googleSignInAccount!.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    await firebaseAuth.signInWithCredential(credential);
+  }
+
+  Future? loginWithFacebook() async {
+    var result = await FacebookAuth.i.login(
+      permissions: ["public_profile", "email"],
+    );
+
+    print(result.message);
+
+    // check the status of our login
+    if (result.status == LoginStatus.success) {
+      final requestData = await FacebookAuth.i.getUserData(
+        fields: "email, name, picture",
+      );
+
+      this.userDetails = new UserModel(
+        imie: requestData["name"],
+        email: requestData["email"],
+      );
+
+      notifyListeners();
+      print(userDetails!.email);
+      print(userDetails!.imie);
+      Fluttertoast.showToast(msg: "Zalogowano z Facebook");
+
+      final AuthCredential facebookCredential =
+      FacebookAuthProvider.credential(result.accessToken!.token);
+
+      await firebaseAuth.signInWithCredential(facebookCredential);
+    }
+  }
+
   Future logout() async {
+    this.googleSignInAccount = await _googleSignIn.signOut();
+    await FacebookAuth.i.logOut();
     await firebaseAuth.signOut();
+    userDetails = null;
+    notifyListeners();
   }
 
   void setLoading(val) {
