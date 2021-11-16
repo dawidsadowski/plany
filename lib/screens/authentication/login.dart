@@ -99,7 +99,7 @@ class _LoginState extends State<Login> {
                         if (_formKey.currentState!.validate()) {
                           print("Email:    ${_emailController.text}");
                           print("Password: ${_passwordController.text}");
-                          await loginProvider.login(
+                          await loginProvider.loginWithEmail(
                               _emailController.text.trim(),
                               _passwordController.text.trim());
                         }

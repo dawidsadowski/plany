@@ -21,17 +21,19 @@ class AuthServices with ChangeNotifier {
   GoogleSignInAccount? googleSignInAccount;
   UserModel? userDetails;
 
-  Future? register(String email, String password) async {
+  Future? register(
+      String email, String password, String name, String surname) async {
     try {
       setLoading(true);
       UserCredential authResult = (await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) => {postDetailsToFirestore()})
+          .then((value) => {postDetailsToFirestoreRegister(name, surname)})
           .catchError((e) {
         Fluttertoast.showToast(msg: e!.message);
       })) as UserCredential;
       User? user = authResult.user;
       setLoading(false);
+
       return user;
     } on SocketException {
       setLoading(false);
@@ -47,13 +49,15 @@ class AuthServices with ChangeNotifier {
     notifyListeners();
   }
 
-  postDetailsToFirestore() async {
+  postDetailsToFirestoreRegister(String name, String surname) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = firebaseAuth.currentUser;
 
     UserModel userModel = UserModel();
     userModel.email = user!.email;
     userModel.uid = user.uid;
+    userModel.imie = name;
+    userModel.nazwisko = surname;
 
     await firebaseFirestore
         .collection("users")
@@ -62,7 +66,21 @@ class AuthServices with ChangeNotifier {
     Fluttertoast.showToast(msg: "Utworzono konto ");
   }
 
-  Future? login(String email, String password) async {
+  postDetailsToFirestore(UserModel model) async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+    User? user = firebaseAuth.currentUser;
+
+    print("zapis do firestore");
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(model.email)
+        .set(model.sendToServerRegister());
+    Fluttertoast.showToast(msg: "Utworzono konto ");
+  }
+
+  Future? loginWithEmail(String email, String password) async {
     setLoading(true);
 
     try {
@@ -90,8 +108,11 @@ class AuthServices with ChangeNotifier {
     this.googleSignInAccount = await _googleSignIn.signIn();
     // inserting values to our user details model
 
+    List<String> name = googleSignInAccount!.displayName!.split(' ');
+
     userDetails = UserModel(
-      imie: googleSignInAccount!.displayName,
+      imie: name[0],
+      nazwisko: name[1],
       email: googleSignInAccount!.email,
     );
 
@@ -102,7 +123,7 @@ class AuthServices with ChangeNotifier {
     Fluttertoast.showToast(msg: "Zalogowano z Google");
 
     final GoogleSignInAuthentication googleSignInAuthentication =
-    await googleSignInAccount!.authentication;
+        await googleSignInAccount!.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleSignInAuthentication.accessToken,
@@ -110,6 +131,9 @@ class AuthServices with ChangeNotifier {
     );
 
     await firebaseAuth.signInWithCredential(credential);
+    userDetails!.uid = firebaseAuth.currentUser!.uid;
+
+    await postDetailsToFirestore(userDetails!);
   }
 
   Future? loginWithFacebook() async {
@@ -136,7 +160,7 @@ class AuthServices with ChangeNotifier {
       Fluttertoast.showToast(msg: "Zalogowano z Facebook");
 
       final AuthCredential facebookCredential =
-      FacebookAuthProvider.credential(result.accessToken!.token);
+          FacebookAuthProvider.credential(result.accessToken!.token);
 
       await firebaseAuth.signInWithCredential(facebookCredential);
     }

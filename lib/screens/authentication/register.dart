@@ -14,6 +14,8 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  late TextEditingController _nameController;
+  late TextEditingController _surnameController;
   final _formKey = GlobalKey<FormState>();
 
   bool _passwordVisible = false;
@@ -22,6 +24,8 @@ class _RegisterState extends State<Register> {
   void initState() {
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
+    _nameController = TextEditingController();
+    _surnameController = TextEditingController();
     super.initState();
   }
 
@@ -29,6 +33,8 @@ class _RegisterState extends State<Register> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
+    _surnameController.dispose();
     super.dispose();
   }
 
@@ -59,6 +65,28 @@ class _RegisterState extends State<Register> {
                   Text(
                     "Utwórz konto, aby kontynuować",
                     style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  SizedBox(height: 30),
+                  TextFormField(
+                    controller: _nameController,
+                    validator: (val) =>
+                    val!.isNotEmpty ? null : "Wprowadź imię",
+                    decoration: InputDecoration(
+                        hintText: "Imie",
+                        prefixIcon: Icon(Icons.perm_identity),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10))),
+                  ),
+                  SizedBox(height: 30),
+                  TextFormField(
+                    controller: _surnameController,
+                    validator: (val) =>
+                    val!.isNotEmpty ? null : "Wprowadź nazwisko",
+                    decoration: InputDecoration(
+                        hintText: "Nazwisko",
+                        prefixIcon: Icon(Icons.perm_identity),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10))),
                   ),
                   SizedBox(height: 30),
                   TextFormField(
@@ -99,11 +127,13 @@ class _RegisterState extends State<Register> {
                         if (_formKey.currentState!.validate()) {
                           // TODO: Uwierzytelnianie
                           print("Email: ${_emailController.text}");
-                          print("Email: ${_passwordController.text}");
+                          print("Password: ${_passwordController.text}");
 
                           await registerProvider.register(
                             _emailController.text.trim(),
                             _passwordController.text.trim(),
+                            _nameController.text.trim(),
+                            _surnameController.text.trim(),
                           );
                         }
                       },

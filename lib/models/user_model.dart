@@ -11,7 +11,7 @@ class UserModel {
 
 
 
-  UserModel({this.uid, this.email, this.imie, this.nazwisko, this.wydzial, this.kierunek});
+  UserModel({this.uid, this.email, this.imie='Przejdź do ustawień by ustawić', this.nazwisko='Przejdź do ustawień by ustawić', this.wydzial, this.kierunek});
 
   UserModel.fromJson(Map<String,String> json){
     imie = json["displayName"];
@@ -40,8 +40,8 @@ class UserModel {
     return {
       'uid': uid,
       'email': email,
-      'imie':'Przejdź do ustawień by ustawić',
-      'nazwisko':'Przejdź do ustewień by ustawić',
+      'imie':imie,
+      'nazwisko':nazwisko,
       'wydzial':'Przejdź do ustawień by ustawić',
       'kierunek': 'Przejdź do ustawień by ustawić',
     };
