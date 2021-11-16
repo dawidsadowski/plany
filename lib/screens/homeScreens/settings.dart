@@ -2,8 +2,8 @@ import 'package:delta_squad_app/screens/homeScreens/group_settings.dart';
 import 'package:flutter/material.dart';
 import 'change_password.dart';
 
-class Settings extends StatelessWidget{
-  const Settings({Key? key}) : super(key: key);
+class SettingsView extends StatelessWidget{
+  const SettingsView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
