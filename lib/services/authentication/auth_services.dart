@@ -143,16 +143,22 @@ class AuthServices with ChangeNotifier {
 
     print(result.message);
 
+
+
     // check the status of our login
     if (result.status == LoginStatus.success) {
       final requestData = await FacebookAuth.i.getUserData(
         fields: "email, name, picture",
       );
 
-      this.userDetails = new UserModel(
-        imie: requestData["name"],
+      List<String> name =requestData["name"].toString().split(' ');
+
+      userDetails = UserModel(
+        imie: name[0],
+        nazwisko: name[1],
         email: requestData["email"],
       );
+
 
       notifyListeners();
       print(userDetails!.email);
@@ -163,6 +169,10 @@ class AuthServices with ChangeNotifier {
           FacebookAuthProvider.credential(result.accessToken!.token);
 
       await firebaseAuth.signInWithCredential(facebookCredential);
+
+      userDetails!.uid = firebaseAuth.currentUser!.uid;
+
+      await postDetailsToFirestore(userDetails!);
     }
   }
 
