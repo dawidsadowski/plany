@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "593458370937-7n5nk6pk6qfvjlbraoef3u35m3bfun5i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.delta_squad_app",
+            "certificate_hash": "5cbeac7411d4408b6d582f56ef3f6f51ff98d238"
+          }
+        },
+        {
           "client_id": "593458370937-fs2s34v8sgdoia251u1huda108juq7b2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
