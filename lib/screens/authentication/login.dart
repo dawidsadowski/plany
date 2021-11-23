@@ -112,7 +112,8 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: loginProvider.isLoading
-                          ? CircularProgressIndicator()
+                          ? CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(
+                          Colors.white))
                           : Text("Zaloguj się",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),

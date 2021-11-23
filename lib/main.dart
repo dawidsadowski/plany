@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(const MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Changed for Navigation Purpose',
       home: MyApp(),
   )
