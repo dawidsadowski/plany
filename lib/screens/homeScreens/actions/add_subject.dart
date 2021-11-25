@@ -23,20 +23,15 @@ class _AddSubjectState extends State<AddSubject> {
   late TextEditingController _subjectController;
   late TextEditingController _teacherController;
   late TextEditingController _roomController;
+  late bool _showSpecificWeeks;
+  late TextEditingController _beginTimeController;
+  late TextEditingController _endTimeController;
 
   Days? _days = Days.monday;
-  TimeType? _typy = TimeType.all;
-
-  late bool _switchValue;
-
-  late TextEditingController _beginTime;
-  late TextEditingController _endTime;
-  DateFormat dateFormat = DateFormat("HH:mm");
-
-  TimeOfDay _time = TimeOfDay(hour: 7, minute: 15);
+  TimeType? _types = TimeType.all;
+  DateFormat timeFormat = DateFormat("HH:mm");
 
   final _formKey = GlobalKey<FormState>();
-
   final List<bool> _subjectWeekValues = List.generate(15, (index) => false);
 
   void _selectTime(TextEditingController txt) async {
@@ -51,12 +46,15 @@ class _AddSubjectState extends State<AddSubject> {
       },
       initialEntryMode: TimePickerEntryMode.input,
     );
-    setState(() {
-      final now = new DateTime.now();
-      var now2 =
-          DateTime(now.year, now.month, now.day, newTime!.hour, newTime.minute);
-      txt.text = dateFormat.format(now2);
-    });
+
+    if(newTime != null) {
+      setState(() {
+        final now = new DateTime.now();
+        var now2 =
+        DateTime(now.year, now.month, now.day, newTime.hour, newTime.minute);
+        txt.text = timeFormat.format(now2);
+      });
+    }
   }
 
   @override
@@ -64,9 +62,9 @@ class _AddSubjectState extends State<AddSubject> {
     _subjectController = TextEditingController();
     _teacherController = TextEditingController();
     _roomController = TextEditingController();
-    _beginTime = TextEditingController();
-    _endTime = TextEditingController();
-    _switchValue = false;
+    _beginTimeController = TextEditingController();
+    _endTimeController = TextEditingController();
+    _showSpecificWeeks = false;
 
     super.initState();
   }
@@ -76,8 +74,8 @@ class _AddSubjectState extends State<AddSubject> {
     _subjectController.dispose();
     _teacherController.dispose();
     _roomController.dispose();
-    _beginTime.dispose();
-    _endTime.dispose();
+    _beginTimeController.dispose();
+    _endTimeController.dispose();
 
     super.dispose();
   }
@@ -311,22 +309,29 @@ class _AddSubjectState extends State<AddSubject> {
                   Row(
                     children: [
                       Expanded(
-                          child:
-                          TextFormField(
-                            controller: _beginTime,
-                            onTap:() => _selectTime(_beginTime),
-                            decoration: InputDecoration(
-                                //suffix: Icon(Icons),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10))),
-                          ),
+                        child: TextFormField(
+                          validator: _validateTime,
+                          keyboardType: TextInputType.datetime,
+                          controller: _beginTimeController,
+                          decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.access_time),
+                                onPressed: () => _selectTime(_beginTimeController),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        ),
                       ),
                       Expanded(
-                        child:
-                        TextFormField(
-                          controller: _endTime,
-                          onTap:() => _selectTime(_endTime),
+                        child: TextFormField(
+                          validator: _validateTime,
+                          keyboardType: TextInputType.datetime,
+                          controller: _endTimeController,
                           decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.access_time),
+                              onPressed: () => _selectTime(_endTimeController),
+                            ),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10))),
                         ),
@@ -340,29 +345,23 @@ class _AddSubjectState extends State<AddSubject> {
                     indent: 5,
                     endIndent: 5,
                   ),
-                  Row(
-                    children: [
-                      Container(
-                          width: MediaQuery.of(context).size.width - 40,
-                          child: SwitchListTile(
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal:
-                                    (MediaQuery.of(context).size.width / 2) -
-                                        50),
-                            value: _switchValue,
-                            activeColor: Colors.blue,
-                            onChanged: (bool value) {
-                              setState(() {
-                                _switchValue = !_switchValue;
-                              });
-                            },
-                          )),
-                    ],
+                  Container(
+                    child:
+                      SwitchListTile(
+                        title: Text("Wybierz konkretne tygodnie"),
+                        value: _showSpecificWeeks,
+                        activeColor: Colors.blue,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _showSpecificWeeks = !_showSpecificWeeks;
+                          });
+                        },
+                      ),
                   ),
 
                   Row(
                     children: [
-                      if (_switchValue == true)
+                      if (_showSpecificWeeks == true)
                         Container(
                             width: MediaQuery.of(context).size.width - 40,
                             child: Column(
@@ -375,7 +374,7 @@ class _AddSubjectState extends State<AddSubject> {
                                 _buildCheckBoxes(13, 15, _subjectWeekValues),
                               ],
                             )),
-                      if (_switchValue == false)
+                      if (_showSpecificWeeks == false)
                         Container(
                           width: MediaQuery.of(context).size.width - 40,
                           child: Column(
@@ -389,10 +388,10 @@ class _AddSubjectState extends State<AddSubject> {
                                     child: RadioListTile(
                                       title: const Text('ALL'),
                                       value: TimeType.all,
-                                      groupValue: _typy,
+                                      groupValue: _types,
                                       onChanged: (TimeType? value) {
                                         setState(() {
-                                          _typy = value;
+                                          _types = value;
                                         });
                                       },
                                     ),
@@ -404,10 +403,10 @@ class _AddSubjectState extends State<AddSubject> {
                                     child: RadioListTile(
                                       title: const Text('X1'),
                                       value: TimeType.x1,
-                                      groupValue: _typy,
+                                      groupValue: _types,
                                       onChanged: (TimeType? value) {
                                         setState(() {
-                                          _typy = value;
+                                          _types = value;
                                         });
                                       },
                                     ),
@@ -419,10 +418,10 @@ class _AddSubjectState extends State<AddSubject> {
                                     child: RadioListTile(
                                       title: const Text('X2'),
                                       value: TimeType.x2,
-                                      groupValue: _typy,
+                                      groupValue: _types,
                                       onChanged: (TimeType? value) {
                                         setState(() {
-                                          _typy = value;
+                                          _types = value;
                                         });
                                       },
                                     ),
@@ -461,10 +460,11 @@ class _AddSubjectState extends State<AddSubject> {
   }
 
   addSubject() {
-    final DateTime today = DateTime.now();
-    DateTime startTime = DateTime(today.year, today.month, today.day, 8, 0, 0);
-    DateTime endTime = startTime.add(const Duration(hours: 2));
-
+    final DateTime now = DateTime.now();
+    DateTime _beginTime = timeFormat.parse(_beginTimeController.text);
+    DateTime _endTime = timeFormat.parse(_endTimeController.text);
+    DateTime beginTime = DateTime(now.year, now.month, now.day, _beginTime.hour, _beginTime.minute);
+    DateTime endTime = DateTime(now.year, now.month, now.day, _endTime.hour, _endTime.minute);
     Color color;
 
     switch (_character) {
@@ -486,7 +486,7 @@ class _AddSubjectState extends State<AddSubject> {
 
     widget.subjects.add(Subject(
         '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
-        startTime,
+        beginTime,
         endTime,
         color,
         false));
@@ -494,7 +494,7 @@ class _AddSubjectState extends State<AddSubject> {
 
   Widget _buildCheckBoxes(int start, int end, List<bool> values) {
     List<Widget> list = [];
-    Widget cb, ca;
+    Widget cb;
     Widget ex;
 
     for (int i = start; i <= end; ++i) {
@@ -516,5 +516,15 @@ class _AddSubjectState extends State<AddSubject> {
     }
     print(list);
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: list);
+  }
+
+  String? _validateTime(timeString) {
+    try {
+      timeFormat.parse(timeString);
+    } on Exception {
+      return "Nieprawidłowy format czsau";
+    }
+
+    return null;
   }
 }
