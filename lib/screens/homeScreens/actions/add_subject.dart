@@ -310,6 +310,38 @@ class _AddSubjectState extends State<AddSubject> {
                   ),
                   Row(
                     children: [
+                      Expanded(
+                          child:
+                          TextFormField(
+                            controller: _beginTime,
+                            onTap:() => _selectTime(_beginTime),
+                            decoration: InputDecoration(
+                                //suffix: Icon(Icons),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10))),
+                          ),
+                      ),
+                      Expanded(
+                        child:
+                        TextFormField(
+                          controller: _endTime,
+                          onTap:() => _selectTime(_endTime),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Colors.black,
+                    height: 25,
+                    thickness: 0.5,
+                    indent: 5,
+                    endIndent: 5,
+                  ),
+                  Row(
+                    children: [
                       Container(
                           width: MediaQuery.of(context).size.width - 40,
                           child: SwitchListTile(
