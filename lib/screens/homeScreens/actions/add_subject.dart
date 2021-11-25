@@ -471,21 +471,14 @@ class _AddSubjectState extends State<AddSubject> {
           contentPadding: EdgeInsets.symmetric(horizontal: 10),
           title: Text(i.toString()),
           value: values[i - 1],
+          controlAffinity: ListTileControlAffinity.leading,
           onChanged: (value) {
             setState(() {
               values[i - 1] = !values[i - 1];
             });
           });
-      ca = ListTile(
-        dense: true,
-        leading: Checkbox(
-          value: false,
-          onChanged: (bool? value) {},
-        ),
-        title: Text(i.toString()),
-      );
       ex = Expanded(
-        child: ca,
+        child: cb,
       );
       list.add(ex);
     }
