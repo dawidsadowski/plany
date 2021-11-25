@@ -184,7 +184,7 @@ class _AddSubjectState extends State<AddSubject> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: const Text('Dalej'),
+                    child: const Text('Dodaj'),
                     onPressed: () {
                       if(_formKey.currentState!.validate()) {
                         addSubject();
