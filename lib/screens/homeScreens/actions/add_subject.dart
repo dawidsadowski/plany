@@ -21,11 +21,15 @@ class _AddSubjectState extends State<AddSubject> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final List<bool> _subjectWeekValues = List.generate(15, (index) => false);
+
   @override
   void initState() {
     _subjectController = TextEditingController();
     _teacherController = TextEditingController();
     _roomController = TextEditingController();
+
+
     super.initState();
   }
 
@@ -45,7 +49,7 @@ class _AddSubjectState extends State<AddSubject> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Plan zajęć"),
+        title: Text("Dodaj przedmiot"),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -131,6 +135,46 @@ class _AddSubjectState extends State<AddSubject> {
                           _character = SingingCharacter.Seminary;
                         });
                       }),
+                  const Divider(
+                    color: Colors.black,
+                    height: 25,
+                    thickness: 0.5,
+                    indent: 5,
+                    endIndent: 5,
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                          width: MediaQuery.of(context).size.width * 0.20,
+                          child:Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RadioListTile(
+                                  value: 1,
+                                  groupValue: val,
+                                  onChanged: (value) {
+                                    setState(() {
+
+                                    });
+                                  }),
+                            ],
+                          )
+                      ),
+                      Container(
+                          width: MediaQuery.of(context).size.width * 0.69,
+                          child:Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildCheckBoxes(1, 3, _subjectWeekValues),
+                              _buildCheckBoxes(4, 6, _subjectWeekValues),
+                              _buildCheckBoxes(7, 9, _subjectWeekValues),
+                              _buildCheckBoxes(10, 12, _subjectWeekValues),
+                              _buildCheckBoxes(13, 15, _subjectWeekValues),
+                            ],
+                          )
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 20),
                   MaterialButton(
                     height: 60,
@@ -184,5 +228,39 @@ class _AddSubjectState extends State<AddSubject> {
     }
 
     widget.subjects.add(Subject('${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}', startTime, endTime, color, false));
+  }
+
+  Widget _buildCheckBoxes(int start, int end, List<bool> values) {
+    List<Widget> list = [];
+    Widget cb,ca;
+    Widget ex;
+
+    for (int i=start;i<=end;++i) {
+      cb = CheckboxListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+          title: Text(i.toString()),
+          value: values[i - 1],
+          onChanged: (value) {
+            setState(() {
+              values[i - 1] = !values[i - 1];
+            });
+          });
+      ca = ListTile(
+        leading: Checkbox(
+          value: false,
+          onChanged: (bool? value) {  },
+        ),
+        title: Text(i.toString()),
+      );
+      ex = Expanded(
+        child: cb,
+      );
+      list.add(ex);
+    }
+    print(list);
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: list
+    );
   }
 }
