@@ -1,116 +1,117 @@
+import 'package:delta_squad_app/classes/subject.dart';
+import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({Key? key}) : super(key: key);
+
   @override
   _ScheduleState createState() => _ScheduleState();
 }
 
 class _ScheduleState extends State<Schedule> {
-  var startingIndex = 999;
-  late PageController controller;
-  DateTime now = DateTime.now();
-  late DateTime date;
-  late int _index;
-  DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-
-  @override
-  void initState() {
-    controller = PageController(initialPage: startingIndex);
-    date = DateTime(now.year, now.month, now.day);
-    _index = startingIndex;
-  }
+  List<Subject> subjects = <Subject>[];
+  bool _menuOpened = false;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-          appBar: AppBar(
-            title: Text(dateFormat.format(date.add(Duration(days: _index - startingIndex)))),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // Add your onPressed code here!
-            },
-            child: const Icon(Icons.add),
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-        body: SafeArea(
-          child: Container(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height -
-                      AppBar().preferredSize.height -
-                      MediaQuery.of(context).padding.top -
-                      MediaQuery.of(context).padding.bottom, // TODO: Fix it somehow
-                  child: PageView.builder(
-                    controller: controller,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _index = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return  Container(
-                          child: SingleChildScrollView(
-                            child:
-                              Column(
-                                children: [
-                                  Text(
-                                      "${dateFormat.format(date.add(Duration(days: index-startingIndex)))} "
-                                          "(${DateFormat('EEEE').format(date.add(Duration(days: index-startingIndex)))})",
-                                      style: const TextStyle(
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                  ),
-                                  Text(
-                                      "${dateFormat.format(date.add(Duration(days: index-startingIndex)))} "
-                                          "(${DateFormat('EEEE').format(date.add(Duration(days: index-startingIndex)))})",
-                                      style: const TextStyle(
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                  ),
-                                ],
-                              ),
-                          )
-                      );
-                    },
-                  ),
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Plan zajęć"),
+        leading: GestureDetector(
+            onTap: () {},
+            child: IconButton(
+                splashRadius: 20,
+                onPressed: () {
+                  setState(() {
+                    _menuOpened = !_menuOpened;
+                  });
+                },
+                icon: Icon(_menuOpened ? Icons.arrow_back : Icons.menu))),
+        actions: [
+          GestureDetector(
+            onTap: () {},
+            child: IconButton(
+              splashRadius: 20,
+              onPressed: () {},
+              icon: const Icon(
+                Icons.search,
+              ),
             ),
           ),
-        )
-      )
+          GestureDetector(
+            onTap: () {},
+            child: IconButton(
+              splashRadius: 20,
+              onPressed: () {},
+              icon: const Icon(
+                Icons.more_vert,
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddSubject(subjects: subjects)),
+          );
+
+          setState(() {});
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: SafeArea(
+        child: SfCalendar(
+          view: CalendarView.day,
+          dataSource: MeetingDataSource(subjects),
+        ),
+      ),
     );
   }
 }
-/*
-PageView.builder(
-          controller: controller,
-          itemBuilder: (context, index) {
-            return  Container(
-                color: Colors.grey,
-                padding: EdgeInsets.all(40.0),
-                margin: EdgeInsets.all(40.0),
-                child: Column(
-                  children: [
-                    Text(
-                        "${dateFormat.format(date.add(Duration(days: index-startingIndex)))} "
-                            "(${DateFormat('EEEE').format(date.add(Duration(days: index-startingIndex)))})",
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold
-                        )
-                    ),
-                  ],
-                )
-            );
-          },
-        )
-*/
+
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Subject> source) {
+    appointments = source;
+  }
+
+  @override
+  DateTime getStartTime(int index) {
+    return _getMeetingData(index).from;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    return _getMeetingData(index).to;
+  }
+
+  @override
+  String getSubject(int index) {
+    return _getMeetingData(index).eventName;
+  }
+
+  @override
+  Color getColor(int index) {
+    return _getMeetingData(index).background;
+  }
+
+  @override
+  bool isAllDay(int index) {
+    return _getMeetingData(index).isAllDay;
+  }
+
+  Subject _getMeetingData(int index) {
+    final dynamic meeting = appointments![index];
+    late final Subject meetingData;
+    if (meeting is Subject) {
+      meetingData = meeting;
+    }
+
+    return meetingData;
+  }
+}
 
 

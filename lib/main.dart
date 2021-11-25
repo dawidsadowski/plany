@@ -32,6 +32,8 @@ class MyApp extends StatelessWidget {
                   value: AuthServices().user, initialData: null)
             ],
             child: MaterialApp(
+              builder: (context, child) =>
+                  MediaQuery(data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true), child: child!),
               theme: ThemeData(
                 primarySwatch: Colors.blue,
               ),
