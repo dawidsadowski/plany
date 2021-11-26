@@ -3,11 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class AddSubject extends StatefulWidget {
-  const AddSubject({Key? key, required this.subjects}) : super(key: key);
+  const AddSubject({Key? key, required this.subjects, required this.details}) : super(key: key);
 
   final List<Subject> subjects;
+  final CalendarTapDetails? details;
 
   @override
   _AddSubjectState createState() => _AddSubjectState();
@@ -17,15 +19,15 @@ enum Days { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
 enum TimeType { all, x1, x2 }
 
-enum SingingCharacter { Lecture, Excercise, Laboratorium, Seminary }
+enum SingingCharacter { lecture, exercise, laboratory, seminary }
 
 class _AddSubjectState extends State<AddSubject> {
   late TextEditingController _subjectController;
   late TextEditingController _teacherController;
   late TextEditingController _roomController;
-  late bool _showSpecificWeeks;
   late TextEditingController _beginTimeController;
   late TextEditingController _endTimeController;
+  late bool _showSpecificWeeks;
 
   Days? _days = Days.monday;
   TimeType? _types = TimeType.all;
@@ -33,29 +35,6 @@ class _AddSubjectState extends State<AddSubject> {
 
   final _formKey = GlobalKey<FormState>();
   final List<bool> _subjectWeekValues = List.generate(15, (index) => false);
-
-  void _selectTime(TextEditingController txt) async {
-    final TimeOfDay? newTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: 7, minute: 15),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-      initialEntryMode: TimePickerEntryMode.input,
-    );
-
-    if(newTime != null) {
-      setState(() {
-        final now = new DateTime.now();
-        var now2 =
-        DateTime(now.year, now.month, now.day, newTime.hour, newTime.minute);
-        txt.text = timeFormat.format(now2);
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -65,6 +44,11 @@ class _AddSubjectState extends State<AddSubject> {
     _beginTimeController = TextEditingController();
     _endTimeController = TextEditingController();
     _showSpecificWeeks = false;
+
+    if(widget.details != null) {
+      _beginTimeController.text = timeFormat.format(widget.details!.date!);
+      _endTimeController.text = timeFormat.format(widget.details!.date!.add(const Duration(hours: 1)));
+    }
 
     super.initState();
   }
@@ -81,7 +65,7 @@ class _AddSubjectState extends State<AddSubject> {
   }
 
   int val = -1;
-  SingingCharacter? _character = SingingCharacter.Lecture;
+  SingingCharacter? _character = SingingCharacter.lecture;
 
   @override
   Widget build(BuildContext context) {
@@ -140,38 +124,38 @@ class _AddSubjectState extends State<AddSubject> {
                   ),
                   RadioListTile(
                       title: Text("Wykład"),
-                      value: SingingCharacter.Lecture,
+                      value: SingingCharacter.lecture,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Lecture;
+                          _character = SingingCharacter.lecture;
                         });
                       }),
                   RadioListTile(
                       title: Text("Ćwiczenia"),
-                      value: SingingCharacter.Excercise,
+                      value: SingingCharacter.exercise,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Excercise;
+                          _character = SingingCharacter.exercise;
                         });
                       }),
                   RadioListTile(
                       title: Text("Laboratorium"),
-                      value: SingingCharacter.Laboratorium,
+                      value: SingingCharacter.laboratory,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Laboratorium;
+                          _character = SingingCharacter.laboratory;
                         });
                       }),
                   RadioListTile(
                       title: Text("Seminarium"),
-                      value: SingingCharacter.Seminary,
+                      value: SingingCharacter.seminary,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Seminary;
+                          _character = SingingCharacter.seminary;
                         });
                       }),
                   const Divider(
@@ -468,16 +452,16 @@ class _AddSubjectState extends State<AddSubject> {
     Color color;
 
     switch (_character) {
-      case SingingCharacter.Lecture:
+      case SingingCharacter.lecture:
         color = Colors.orange;
         break;
-      case SingingCharacter.Excercise:
+      case SingingCharacter.exercise:
         color = Colors.teal;
         break;
-      case SingingCharacter.Laboratorium:
+      case SingingCharacter.laboratory:
         color = Colors.blue;
         break;
-      case SingingCharacter.Seminary:
+      case SingingCharacter.seminary:
         color = Colors.redAccent;
         break;
       default:
@@ -490,6 +474,29 @@ class _AddSubjectState extends State<AddSubject> {
         endTime,
         color,
         false));
+  }
+
+  void _selectTime(TextEditingController txt) async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: 7, minute: 15),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+      initialEntryMode: TimePickerEntryMode.input,
+    );
+
+    if(newTime != null) {
+      setState(() {
+        final now = new DateTime.now();
+        var now2 =
+        DateTime(now.year, now.month, now.day, newTime.hour, newTime.minute);
+        txt.text = timeFormat.format(now2);
+      });
+    }
   }
 
   Widget _buildCheckBoxes(int start, int end, List<bool> values) {

@@ -181,6 +181,11 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_signin_button:
     dependency: "direct main"
     description:
@@ -368,6 +373,13 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_datepicker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "19.3.55"
+  syncfusion_localizations:
+    dependency: "direct main"
+    description:
+      name: syncfusion_localizations
       url: "https://pub.dartlang.org"
     source: hosted
     version: "19.3.55"
