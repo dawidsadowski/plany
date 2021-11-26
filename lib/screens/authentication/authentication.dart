@@ -11,7 +11,7 @@ class Authentication extends StatefulWidget {
 }
 
 class _AuthenticationState extends State<Authentication> {
-  bool isToggle = false; // TODO: Jaka głupia nazwa zmiennej kurde
+  bool isToggle = false;
 
   void toggleScreen() {
     setState(() {

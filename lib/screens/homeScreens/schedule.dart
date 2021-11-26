@@ -13,7 +13,8 @@ class Schedule extends StatefulWidget {
 }
 
 class _ScheduleState extends State<Schedule> {
-  int _selectedDestination = 0;
+  final CalendarController _controller = CalendarController();
+  CalendarView _calendarView = CalendarView.day;
   List<Subject> subjects = <Subject>[];
   CalendarTapDetails? _details;
 
@@ -46,88 +47,78 @@ class _ScheduleState extends State<Schedule> {
         ],
       ),
       drawer: Drawer(
-          child: ListView(children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            "Delta Szwadron",
-            style: TextStyle(
-              fontFeatures: [FontFeature.enable('smcp')],
-              fontSize: 25,
-              color: Colors.black54,
+        child: ListView(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    "Delta Szwadron",
+                    style: TextStyle(
+                      fontFeatures: [FontFeature.enable('smcp')],
+                      fontSize: 25,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  Icon(
+                      Icons.today,
+                      color: Colors.black54
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-        const Divider(
-          height: 1,
-          thickness: 1,
-        ),
-        ListTile(
-          leading: Icon(Icons.calendar_view_day),
-          title: Text('Dzień'),
-          selected: _selectedDestination == 0,
-          onTap: () => selectDestination(0),
-        ),
-        ListTile(
-          leading: Icon(Icons.calendar_view_week),
-          title: Text('Tydzień'),
-          selected: _selectedDestination == 1,
-          onTap: () => selectDestination(1),
-        ),
-        ListTile(
-          leading: Icon(Icons.calendar_view_month),
-          title: Text('Miesiąc'),
-          selected: _selectedDestination == 2,
-          onTap: () => selectDestination(2),
-        ),
-        const Divider(
-          height: 1,
-          thickness: 1,
-        ),
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            'Grupy',
-          ),
-        ),
-        CheckboxListTile(
-            title: Text("TM6"),
-            controlAffinity: ListTileControlAffinity.leading,
-            value: true,
-            onChanged: (value) {}),
-        CheckboxListTile(
-            title: Text("TIZJO1"),
-            controlAffinity: ListTileControlAffinity.leading,
-            value: true,
-            onChanged: (value) {}),
-        const Divider(
-          height: 1,
-          thickness: 1,
-        ),
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            'Rodzaj zajęć',
-          ),
-        ),
-        CheckboxListTile(
-            activeColor: Colors.orange,
-            title: Text("Wykłady"),
-            controlAffinity: ListTileControlAffinity.leading,
-            value: true,
-            onChanged: (value) {}),
-        CheckboxListTile(
-            activeColor: Colors.teal,
-            title: Text("Ćwiczenia"),
-            controlAffinity: ListTileControlAffinity.leading,
-            value: true,
-            onChanged: (value) {}),
-        CheckboxListTile(
-            activeColor: Colors.blue,
-            title: Text("Laboratoria"),
-            controlAffinity: ListTileControlAffinity.leading,
-            value: true,
-            onChanged: (value) {}),
+            const Divider(
+              height: 1,
+              thickness: 1,
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_view_day),
+              title: Text('Dzień'),
+              selected: _calendarView == CalendarView.day,
+              onTap: () => selectCalendarView(CalendarView.day),
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_view_week),
+              title: Text('Tydzień'),
+              selected: _calendarView == CalendarView.week,
+              onTap: () => selectCalendarView(CalendarView.week),
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_view_month),
+              title: Text('Miesiąc'),
+              selected: _calendarView == CalendarView.month,
+              onTap: () => selectCalendarView(CalendarView.month),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+            ),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Rodzaj zajęć',
+              ),
+            ),
+            CheckboxListTile(
+                activeColor: Colors.orange,
+                title: Text("Wykłady"),
+                controlAffinity: ListTileControlAffinity.leading,
+                value: true,
+                onChanged: (value) {}),
+            CheckboxListTile(
+                activeColor: Colors.teal,
+                title: Text("Ćwiczenia"),
+                controlAffinity: ListTileControlAffinity.leading,
+                value: true,
+                onChanged: (value) {}),
+            CheckboxListTile(
+                activeColor: Colors.blue,
+                title: Text("Laboratoria"),
+                controlAffinity: ListTileControlAffinity.leading,
+                value: true,
+                onChanged: (value) {}),
             CheckboxListTile(
                 activeColor: Colors.redAccent,
                 title: Text("Seminaria"),
@@ -137,6 +128,26 @@ class _ScheduleState extends State<Schedule> {
             CheckboxListTile(
                 activeColor: Colors.black54,
                 title: Text("Inne"),
+                controlAffinity: ListTileControlAffinity.leading,
+                value: true,
+                onChanged: (value) {}),
+            const Divider(
+              height: 1,
+              thickness: 1,
+            ),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Grupy',
+              ),
+            ),
+            CheckboxListTile(
+                title: Text("TM6"),
+                controlAffinity: ListTileControlAffinity.leading,
+                value: true,
+                onChanged: (value) {}),
+            CheckboxListTile(
+                title: Text("TIZJO1"),
                 controlAffinity: ListTileControlAffinity.leading,
                 value: true,
                 onChanged: (value) {}),
@@ -158,12 +169,13 @@ class _ScheduleState extends State<Schedule> {
       ),
       body: SafeArea(
         child: SfCalendar(
+          controller: _controller,
           onTap: (details) {
             setState(() {
               _details = details;
             });
           },
-          view: CalendarView.day,
+          view: _calendarView,
           dataSource: MeetingDataSource(subjects),
           timeSlotViewSettings: const TimeSlotViewSettings(
             timeFormat: "HH:mm",
@@ -176,9 +188,11 @@ class _ScheduleState extends State<Schedule> {
     );
   }
 
-  void selectDestination(int index) {
+  void selectCalendarView(CalendarView calendarView) {
     setState(() {
-      _selectedDestination = index;
+      _calendarView = calendarView;
+      _controller.view = calendarView;
+      Navigator.pop(context);
     });
   }
 }
