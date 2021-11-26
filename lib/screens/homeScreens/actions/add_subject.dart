@@ -294,8 +294,10 @@ class _AddSubjectState extends State<AddSubject> {
                     endIndent: 5,
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // TODO: Adjust
                     children: [
-                      Expanded(
+                      SizedBox(
+                        width: 160,
                         child: TextFormField(
                           validator: _validateTime,
                           keyboardType: TextInputType.datetime,
@@ -309,7 +311,8 @@ class _AddSubjectState extends State<AddSubject> {
                                   borderRadius: BorderRadius.circular(10))),
                         ),
                       ),
-                      Expanded(
+                      SizedBox(
+                        width: 160, // TODO: Calculate dynamically
                         child: TextFormField(
                           validator: _validateTime,
                           keyboardType: TextInputType.datetime,
