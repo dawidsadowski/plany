@@ -48,6 +48,9 @@ class _AddSubjectState extends State<AddSubject> {
     if(widget.details != null) {
       _beginTimeController.text = timeFormat.format(widget.details!.date!);
       _endTimeController.text = timeFormat.format(widget.details!.date!.add(const Duration(hours: 1)));
+    } else {
+      _beginTimeController.text = "08:00";
+      _endTimeController.text = "09:00";
     }
 
     super.initState();

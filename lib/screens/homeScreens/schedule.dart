@@ -14,7 +14,7 @@ class _ScheduleState extends State<Schedule> {
   List<Subject> subjects = <Subject>[];
   bool _menuOpened = false;
 
-  late CalendarTapDetails? _details;
+  CalendarTapDetails? _details;
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +76,8 @@ class _ScheduleState extends State<Schedule> {
           dataSource: MeetingDataSource(subjects),
           timeSlotViewSettings: const TimeSlotViewSettings(
               timeFormat: "HH:mm",
-              // startHour: 8,
-              // endHour: 20,
+              // startHour: 0,
+              // endHour: 23,
               // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),
