@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -15,7 +14,7 @@ class Schedule extends StatefulWidget {
 class _ScheduleState extends State<Schedule> {
   final CalendarController _controller = CalendarController();
   CalendarView _calendarView = CalendarView.day;
-  List<Subject> subjects = <Subject>[];
+  List<Appointment> subjects = <Appointment>[];
   CalendarTapDetails? _details;
 
   @override
@@ -198,28 +197,28 @@ class _ScheduleState extends State<Schedule> {
 }
 
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Subject> source) {
+  MeetingDataSource(List<Appointment> source) {
     appointments = source;
   }
 
   @override
   DateTime getStartTime(int index) {
-    return _getMeetingData(index).from;
+    return _getMeetingData(index).startTime;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return _getMeetingData(index).to;
+    return _getMeetingData(index).endTime;
   }
 
   @override
   String getSubject(int index) {
-    return _getMeetingData(index).eventName;
+    return _getMeetingData(index).subject;
   }
 
   @override
   Color getColor(int index) {
-    return _getMeetingData(index).background;
+    return _getMeetingData(index).color;
   }
 
   @override
@@ -227,10 +226,10 @@ class MeetingDataSource extends CalendarDataSource {
     return _getMeetingData(index).isAllDay;
   }
 
-  Subject _getMeetingData(int index) {
+  Appointment _getMeetingData(int index) {
     final dynamic meeting = appointments![index];
-    late final Subject meetingData;
-    if (meeting is Subject) {
+    late final Appointment meetingData;
+    if (meeting is Appointment) {
       meetingData = meeting;
     }
 

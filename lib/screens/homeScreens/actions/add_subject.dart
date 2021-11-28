@@ -1,4 +1,3 @@
-import 'package:delta_squad_app/classes/subject.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -8,14 +7,14 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 class AddSubject extends StatefulWidget {
   const AddSubject({Key? key, required this.subjects, required this.details}) : super(key: key);
 
-  final List<Subject> subjects;
+  final List<Appointment> subjects;
   final CalendarTapDetails? details;
 
   @override
   _AddSubjectState createState() => _AddSubjectState();
 }
 
-enum Days { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
+// enum Days { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
 enum TimeType { all, x1, x2 }
 
@@ -29,7 +28,7 @@ class _AddSubjectState extends State<AddSubject> {
   late TextEditingController _endTimeController;
   late bool _showSpecificWeeks;
 
-  Days? _days = Days.monday;
+  WeekDays _weekDay = WeekDays.monday;
   TimeType? _types = TimeType.all;
   DateFormat timeFormat = DateFormat("HH:mm");
 
@@ -48,6 +47,31 @@ class _AddSubjectState extends State<AddSubject> {
     if(widget.details != null) {
       _beginTimeController.text = timeFormat.format(widget.details!.date!);
       _endTimeController.text = timeFormat.format(widget.details!.date!.add(const Duration(hours: 1)));
+
+      switch(widget.details!.date!.weekday) {
+        case 1:
+          _weekDay = WeekDays.monday;
+          break;
+        case 2:
+          _weekDay = WeekDays.tuesday;
+          break;
+        case 3:
+          _weekDay = WeekDays.wednesday;
+          break;
+        case 4:
+          _weekDay = WeekDays.thursday;
+          break;
+        case 5:
+          _weekDay = WeekDays.friday;
+          break;
+        case 6:
+          _weekDay = WeekDays.saturday;
+          break;
+        case 7:
+          _weekDay = WeekDays.sunday;
+          break;
+      }
+
     } else {
       _beginTimeController.text = "08:00";
       _endTimeController.text = "09:00";
@@ -87,6 +111,7 @@ class _AddSubjectState extends State<AddSubject> {
                 children: [
                   TextFormField(
                     controller: _subjectController,
+                    textInputAction: TextInputAction.next,
                     validator: (text) =>
                         text!.length > 0 ? null : "Wprowadź nazwę przedmiotu",
                     decoration: InputDecoration(
@@ -98,6 +123,7 @@ class _AddSubjectState extends State<AddSubject> {
                   SizedBox(height: 20),
                   TextFormField(
                     controller: _teacherController,
+                    textInputAction: TextInputAction.next,
                     validator: (text) => text!.length > 0
                         ? null
                         : "Wprowadź nazwisko osoby prowadzącej zajęcia",
@@ -110,6 +136,7 @@ class _AddSubjectState extends State<AddSubject> {
                   SizedBox(height: 20),
                   TextFormField(
                     controller: _roomController,
+                    textInputAction: TextInputAction.next,
                     validator: (text) =>
                         text!.length > 0 ? null : "Wprowadź identyfikator sali",
                     decoration: InputDecoration(
@@ -177,11 +204,11 @@ class _AddSubjectState extends State<AddSubject> {
                             child: RadioListTile(
                               dense: true,
                               title: const Text('Poniedziałek'),
-                              value: Days.monday,
-                              groupValue: _days,
-                              onChanged: (Days? value) {
+                              value: WeekDays.monday,
+                              groupValue: _weekDay,
+                              onChanged: (WeekDays? value) {
                                 setState(() {
-                                  _days = value;
+                                  _weekDay = value!;
                                 });
                               },
                             ),
@@ -191,11 +218,11 @@ class _AddSubjectState extends State<AddSubject> {
                             child: RadioListTile(
                               dense: true,
                               title: const Text('Wtorek'),
-                              value: Days.tuesday,
-                              groupValue: _days,
-                              onChanged: (Days? value) {
+                              value: WeekDays.tuesday,
+                              groupValue: _weekDay,
+                              onChanged: (WeekDays? value) {
                                 setState(() {
-                                  _days = value;
+                                  _weekDay = value!;
                                 });
                               },
                             ),
@@ -208,12 +235,12 @@ class _AddSubjectState extends State<AddSubject> {
                             width: (MediaQuery.of(context).size.width - 40) / 2,
                             child: RadioListTile(
                               dense: true,
-                              title: const Text('Sroda'),
-                              value: Days.wednesday,
-                              groupValue: _days,
-                              onChanged: (Days? value) {
+                              title: const Text('Środa'),
+                              value: WeekDays.wednesday,
+                              groupValue: _weekDay,
+                              onChanged: (WeekDays? value) {
                                 setState(() {
-                                  _days = value;
+                                  _weekDay = value!;
                                 });
                               },
                             ),
@@ -223,11 +250,11 @@ class _AddSubjectState extends State<AddSubject> {
                             child: RadioListTile(
                               dense: true,
                               title: const Text('Czwartek'),
-                              value: Days.thursday,
-                              groupValue: _days,
-                              onChanged: (Days? value) {
+                              value: WeekDays.thursday,
+                              groupValue: _weekDay,
+                              onChanged: (WeekDays? value) {
                                 setState(() {
-                                  _days = value;
+                                  _weekDay = value!;
                                 });
                               },
                             ),
@@ -241,11 +268,11 @@ class _AddSubjectState extends State<AddSubject> {
                             child: RadioListTile(
                               dense: true,
                               title: const Text('Piątek'),
-                              value: Days.friday,
-                              groupValue: _days,
-                              onChanged: (Days? value) {
+                              value: WeekDays.friday,
+                              groupValue: _weekDay,
+                              onChanged: (WeekDays? value) {
                                 setState(() {
-                                  _days = value;
+                                  _weekDay = value!;
                                 });
                               },
                             ),
@@ -255,11 +282,11 @@ class _AddSubjectState extends State<AddSubject> {
                             child: RadioListTile(
                               dense: true,
                               title: const Text('Sobota'),
-                              value: Days.saturday,
-                              groupValue: _days,
-                              onChanged: (Days? value) {
+                              value: WeekDays.saturday,
+                              groupValue: _weekDay,
+                              onChanged: (WeekDays? value) {
                                 setState(() {
-                                  _days = value;
+                                  _weekDay = value!;
                                 });
                               },
                             ),
@@ -272,11 +299,11 @@ class _AddSubjectState extends State<AddSubject> {
                           child: RadioListTile(
                             dense: true,
                             title: const Text('Niedziela'),
-                            value: Days.sunday,
-                            groupValue: _days,
-                            onChanged: (Days? value) {
+                            value: WeekDays.sunday,
+                            groupValue: _weekDay,
+                            onChanged: (WeekDays? value) {
                               setState(() {
-                                _days = value;
+                                _weekDay = value!;
                               });
                             },
                           ),
@@ -373,8 +400,7 @@ class _AddSubjectState extends State<AddSubject> {
                                 children: [
                                   SizedBox(
                                     width: (MediaQuery.of(context).size.width -
-                                            40) /
-                                        3,
+                                            40) / 3,
                                     child: RadioListTile(
                                       title: const Text('ALL'),
                                       value: TimeType.all,
@@ -388,8 +414,7 @@ class _AddSubjectState extends State<AddSubject> {
                                   ),
                                   SizedBox(
                                     width: (MediaQuery.of(context).size.width -
-                                            40) /
-                                        3,
+                                            40) / 3,
                                     child: RadioListTile(
                                       title: const Text('X1'),
                                       value: TimeType.x1,
@@ -403,8 +428,7 @@ class _AddSubjectState extends State<AddSubject> {
                                   ),
                                   SizedBox(
                                     width: (MediaQuery.of(context).size.width -
-                                            40) /
-                                        3,
+                                            40) / 3,
                                     child: RadioListTile(
                                       title: const Text('X2'),
                                       value: TimeType.x2,
@@ -449,8 +473,18 @@ class _AddSubjectState extends State<AddSubject> {
     );
   }
 
+  DateTime getNearestDateByDayOfTheWeek(WeekDays day){
+    var now = DateTime.now();
+
+    while(now.weekday % 7 != day.index) {
+      now = now.add(const Duration(days: 1));
+    }
+
+    return now;
+  }
+
   addSubject() {
-    final DateTime now = DateTime.now();
+    final DateTime now = getNearestDateByDayOfTheWeek(_weekDay);
     DateTime _beginTime = timeFormat.parse(_beginTimeController.text);
     DateTime _endTime = timeFormat.parse(_endTimeController.text);
     DateTime beginTime = DateTime(now.year, now.month, now.day, _beginTime.hour, _beginTime.minute);
@@ -474,12 +508,35 @@ class _AddSubjectState extends State<AddSubject> {
         color = Colors.lime;
     }
 
-    widget.subjects.add(Subject(
-        '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
-        beginTime,
-        endTime,
-        color,
-        false));
+    // Appointment
+    // widget.subjects.add(Subject(
+    //     '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
+    //     beginTime,
+    //     endTime,
+    //     color,
+    //     false));
+
+    RecurrenceProperties recurrence = RecurrenceProperties(
+        startDate: beginTime,
+        recurrenceType: RecurrenceType.weekly,
+        interval: 1,
+        recurrenceRange: RecurrenceRange.count,
+        recurrenceCount: 10,
+        weekDays: [
+          _weekDay
+        ]
+    );
+
+
+    widget.subjects.add(
+      Appointment(
+        startTime: beginTime,
+        endTime: endTime,
+        subject: '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
+        color: color,
+        recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+      )
+    );
   }
 
   void _selectTime(TextEditingController txt) async {
