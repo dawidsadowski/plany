@@ -651,8 +651,8 @@ class _AddSubjectState extends State<AddSubject> {
         subjectController.text,
         teacherController.text,
         roomController.text,
-        beginTime.text,
-        endTime.text,
+        Timestamp.fromDate(timeFormat.parse(_beginTimeController.text)),
+        Timestamp.fromDate(timeFormat.parse(_endTimeController.text)),
         character,
         subjectWeekValues,
         day);

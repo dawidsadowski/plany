@@ -77,142 +77,117 @@ class _ScheduleState extends State<Schedule> {
       print(list[0].weekOfSemester);
 
       getSchedule(pon, (data) {
-        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+        getScheduleData(data);
 
-        for (int i = 0; i < sch_pon.length; i++) {
-          dynamic sch = sch_pon.elementAt(i);
-          SubjectModel sub = SubjectModel.withoutWeeks(
-              sch['name'],
-              sch['instructor'],
-              sch['hall'],
-              "8:00",
-              "10:00",
-              SingingCharacter.values[sch['type']],
-              WeekDays.values[sch['day']]);
-          List<bool> wee = sch['weeks'].cast<bool>();
-          sub.weeks = wee;
-          schedule.add(sub);
-        }
-      });
+        getSchedule(wt, (data) {
+          getScheduleData(data);
 
-      getSchedule(pon, (data) {
-        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+          getSchedule(sr, (data) {
+            getScheduleData(data);
 
-        for (int i = 0; i < sch_pon.length; i++) {
-          dynamic sch = sch_pon.elementAt(i);
-          SubjectModel sub = SubjectModel.withoutWeeks(
-              sch['name'],
-              sch['instructor'],
-              sch['hall'],
-              "8:00",
-              "10:00",
-              SingingCharacter.values[sch['type']],
-              WeekDays.values[sch['day']]);
-          List<bool> wee = sch['weeks'].cast<bool>();
-          sub.weeks = wee;
-          schedule.add(sub);
-        }
-      });
+            getSchedule(czw, (data) {
+              getScheduleData(data);
 
-      getSchedule(wt, (data) {
-        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+              getSchedule(pt, (data) {
+                List<dynamic> sch_pon =
+                    data.docs.map((doc) => doc.data()).toList();
 
-        for (int i = 0; i < sch_pon.length; i++) {
-          dynamic sch = sch_pon.elementAt(i);
-          SubjectModel sub = SubjectModel.withoutWeeks(
-              sch['name'],
-              sch['instructor'],
-              sch['hall'],
-              "8:00",
-              "10:00",
-              SingingCharacter.values[sch['type']],
-              WeekDays.values[sch['day']]);
-          List<bool> wee = sch['weeks'].cast<bool>();
-          sub.weeks = wee;
-          schedule.add(sub);
-        }
-      });
+                for (int i = 0; i < sch_pon.length; i++) {
+                  dynamic sch = sch_pon.elementAt(i);
+                  SubjectModel sub = SubjectModel.withoutWeeks(
+                      sch['name'],
+                      sch['instructor'],
+                      sch['hall'],
+                      sch['beginTime'],
+                      sch['endTime'],
+                      SingingCharacter.values[sch['type']],
+                      WeekDays.values[sch['day']]);
 
-      getSchedule(sr, (data) {
-        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+                  List<bool> wee = sch['weeks'].cast<bool>();
+                  sub.weeks = wee;
 
-        for (int i = 0; i < sch_pon.length; i++) {
-          dynamic sch = sch_pon.elementAt(i);
-          SubjectModel sub = SubjectModel.withoutWeeks(
-              sch['name'],
-              sch['instructor'],
-              sch['hall'],
-              "8:00",
-              "10:00",
-              SingingCharacter.values[sch['type']],
-              WeekDays.values[sch['day']]);
-          List<bool> wee = sch['weeks'].cast<bool>();
-          sub.weeks = wee;
-          schedule.add(sub);
-        }
-      });
+                  setState(() {
+                    schedule.add(sub);
+                  });
+                  print(sub.name);
+                }
 
-      getSchedule(czw, (data) {
-        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+                for (int i = 0; i < list.length; i++) {
+                  for (int j = 0; j < schedule.length; j++) {
+                    if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
+                      DateTime beginTime = DateTime.fromMicrosecondsSinceEpoch(
+                          schedule[j].beginTime!.microsecondsSinceEpoch);
+                      DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
+                          schedule[j].endTime!.microsecondsSinceEpoch);
 
-        for (int i = 0; i < sch_pon.length; i++) {
-          dynamic sch = sch_pon.elementAt(i);
-          SubjectModel sub = SubjectModel.withoutWeeks(
-              sch['name'],
-              sch['instructor'],
-              sch['hall'],
-              "8:00",
-              "10:00",
-              SingingCharacter.values[sch['type']],
-              WeekDays.values[sch['day']]);
-          List<bool> wee = sch['weeks'].cast<bool>();
-          sub.weeks = wee;
-          schedule.add(sub);
-        }
-      });
+                      Color color = Colors.blue;
 
-      getSchedule(pt, (data) {
-        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+                      switch (schedule[j].type) {
+                        case SingingCharacter.lecture:
+                          color = Colors.orange;
+                          break;
+                        case SingingCharacter.exercise:
+                          color = Colors.teal;
+                          break;
+                        case SingingCharacter.laboratory:
+                          color = Colors.blue;
+                          break;
+                        case SingingCharacter.seminary:
+                          color = Colors.redAccent;
+                          break;
+                        default:
+                          color = Colors.lime;
+                      }
 
-        for (int i = 0; i < sch_pon.length; i++) {
-          dynamic sch = sch_pon.elementAt(i);
-          SubjectModel sub = SubjectModel.withoutWeeks(
-              sch['name'],
-              sch['instructor'],
-              sch['hall'],
-              "8:00",
-              "10:00",
-              SingingCharacter.values[sch['type']],
-              WeekDays.values[sch['day']]);
+                      setState(() {
+                        subjects.add(Appointment(
+                          startTime: DateTime(
+                              2021,
+                              list[i].monthOfYear,
+                              list[i].dayOfMonth,
+                              beginTime.hour,
+                              beginTime.minute),
+                          endTime: DateTime(2021, list[i].monthOfYear,
+                              list[i].dayOfMonth, endTime.hour, endTime.minute),
+                          subject:
+                              '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
+                          color: color,
+                          //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+                        ));
+                      });
+                    }
+                  }
+                }
 
-          List<bool> wee = sch['weeks'].cast<bool>();
-          sub.weeks = wee;
-
-          schedule.add(sub);
-          print(sub.name);
-        }
-
-        for (int i = 0; i < list.length; i++) {
-          for (int j = 0; j < schedule.length; j++) {
-            if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
-              setState(() {
-                subjects.add(Appointment(
-                  startTime: DateTime(
-                      2021, list[i].monthOfYear, list[i].dayOfMonth, 12),
-                  endTime: DateTime(
-                          2021, list[i].monthOfYear, list[i].dayOfMonth, 12)
-                      .add(Duration(hours: 2)),
-                  subject:
-                      '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
-                  color: Colors.orange,
-                  //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
-                ));
+                setState(() {});
               });
-            }
-          }
-        }
+            });
+          });
+        });
       });
     });
+  }
+
+  void getScheduleData(data) {
+    List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+    for (int i = 0; i < sch_pon.length; i++) {
+      dynamic sch = sch_pon.elementAt(i);
+      SubjectModel sub = SubjectModel.withoutWeeks(
+          sch['name'],
+          sch['instructor'],
+          sch['hall'],
+          sch['beginTime'],
+          sch['endTime'],
+          SingingCharacter.values[sch['type']],
+          WeekDays.values[sch['day']]);
+      List<bool> wee = sch['weeks'].cast<bool>();
+      sub.weeks = wee;
+
+      setState(() {
+        schedule.add(sub);
+      });
+    }
   }
 
   @override
@@ -372,8 +347,8 @@ class _ScheduleState extends State<Schedule> {
           dataSource: MeetingDataSource(subjects),
           timeSlotViewSettings: const TimeSlotViewSettings(
             timeFormat: "HH:mm",
-             startHour: 7,
-             endHour: 21,
+            // startHour: 7,
+            // endHour: 21,
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),

@@ -1,12 +1,13 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class SubjectModel {
   String? name;
   String? instructor;
   String? hall;
-  String? beginTime;
-  String? endTime;
+  Timestamp? beginTime;
+  Timestamp? endTime;
   SingingCharacter? type;
   List<bool>? weeks;
   WeekDays? day;
@@ -33,6 +34,8 @@ class SubjectModel {
       'name': name,
       'type': type!.index,
       'weeks': weeks,
+      'beginTime': beginTime,
+      'endTime': endTime
     };
   }
 }
