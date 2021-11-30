@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -435,12 +437,13 @@ class _AddSubjectState extends State<AddSubject> {
                             _subjectController,
                             _teacherController,
                             _roomController,
-                            _beginTime,
-                            _endTime,
+                            _beginTimeController,
+                            _endTimeController,
+                            WeekDays.monday,
                             _character,
-                            _switchValue,
+                            _showSpecificWeeks,
                             _subjectWeekValues,
-                            _typy);
+                            _types);
                         addSubject();
                         Navigator.pop(context);
                       }
@@ -553,13 +556,14 @@ class _AddSubjectState extends State<AddSubject> {
       TextEditingController roomController,
       TextEditingController beginTime,
       TextEditingController endTime,
+      WeekDays day,
       SingingCharacter? character,
       bool switchValue,
       List<bool> subjectWeekValues,
-      TimeType? typy) {
+      TimeType? types) async{
 
     if (!switchValue) {
-      if (typy == TimeType.x1) {
+      if (types == TimeType.x1) {
         for (int i = 0; i < 15; i++) {
           if (i % 2 == 0) {
             subjectWeekValues[i] = true;
@@ -567,7 +571,7 @@ class _AddSubjectState extends State<AddSubject> {
             subjectWeekValues[i] = false;
           }
         }
-      } else if (typy == TimeType.x2) {
+      } else if (types == TimeType.x2) {
         for (int i = 0; i < 15; i++) {
           if (i % 2 == 0) {
             subjectWeekValues[i] = false;
@@ -582,9 +586,19 @@ class _AddSubjectState extends State<AddSubject> {
       }
     }
 
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+    User? user = firebaseAuth.currentUser;
 
+    SubjectModel model = SubjectModel("test",subjectController.text,teacherController.text,roomController.text,beginTime.text,endTime.text,character,subjectWeekValues,day);
 
+    await firebaseFirestore
+        .collection("users")
+        .doc(user!.email)
+        .collection("schedule")
+        .doc()
+        .set(model.sendToSchedule());
 
 
   }
