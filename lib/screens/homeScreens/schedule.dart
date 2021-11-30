@@ -14,6 +14,8 @@ class _ScheduleState extends State<Schedule> {
   List<Subject> subjects = <Subject>[];
   bool _menuOpened = false;
 
+  CalendarTapDetails? _details;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +58,7 @@ class _ScheduleState extends State<Schedule> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddSubject(subjects: subjects)),
+            MaterialPageRoute(builder: (context) => AddSubject(subjects: subjects, details: _details)),
           );
 
           setState(() {});
@@ -65,8 +67,19 @@ class _ScheduleState extends State<Schedule> {
       ),
       body: SafeArea(
         child: SfCalendar(
+          onTap: (details) {
+            setState(() {
+              _details = details;
+            });
+          },
           view: CalendarView.day,
           dataSource: MeetingDataSource(subjects),
+          timeSlotViewSettings: const TimeSlotViewSettings(
+              timeFormat: "HH:mm",
+              // startHour: 0,
+              // endHour: 23,
+              // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
+          ),
         ),
       ),
     );

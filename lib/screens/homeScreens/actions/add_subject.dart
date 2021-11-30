@@ -4,11 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class AddSubject extends StatefulWidget {
-  const AddSubject({Key? key, required this.subjects}) : super(key: key);
+  const AddSubject({Key? key, required this.subjects, required this.details}) : super(key: key);
 
   final List<Subject> subjects;
+  final CalendarTapDetails? details;
 
   @override
   _AddSubjectState createState() => _AddSubjectState();
@@ -19,50 +21,33 @@ class _AddSubjectState extends State<AddSubject> {
   late TextEditingController _subjectController;
   late TextEditingController _teacherController;
   late TextEditingController _roomController;
+  late TextEditingController _beginTimeController;
+  late TextEditingController _endTimeController;
+  late bool _showSpecificWeeks;
 
   Days? _days = Days.monday;
-  TimeType? _typy = TimeType.all;
-
-  late bool _switchValue;
-
-  late TextEditingController _beginTime;
-  late TextEditingController _endTime;
-  DateFormat dateFormat = DateFormat("HH:mm");
-
-  TimeOfDay _time = TimeOfDay(hour: 7, minute: 15);
+  TimeType? _types = TimeType.all;
+  DateFormat timeFormat = DateFormat("HH:mm");
 
   final _formKey = GlobalKey<FormState>();
-
   final List<bool> _subjectWeekValues = List.generate(15, (index) => false);
-
-  void _selectTime(TextEditingController txt) async {
-    final TimeOfDay? newTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: 7, minute: 15),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-      initialEntryMode: TimePickerEntryMode.input,
-    );
-    setState(() {
-      final now = new DateTime.now();
-      var now2 =
-          DateTime(now.year, now.month, now.day, newTime!.hour, newTime.minute);
-      txt.text = dateFormat.format(now2);
-    });
-  }
 
   @override
   void initState() {
     _subjectController = TextEditingController();
     _teacherController = TextEditingController();
     _roomController = TextEditingController();
-    _beginTime = TextEditingController();
-    _endTime = TextEditingController();
-    _switchValue = false;
+    _beginTimeController = TextEditingController();
+    _endTimeController = TextEditingController();
+    _showSpecificWeeks = false;
+
+    if(widget.details != null) {
+      _beginTimeController.text = timeFormat.format(widget.details!.date!);
+      _endTimeController.text = timeFormat.format(widget.details!.date!.add(const Duration(hours: 1)));
+    } else {
+      _beginTimeController.text = "08:00";
+      _endTimeController.text = "09:00";
+    }
 
     super.initState();
   }
@@ -72,14 +57,14 @@ class _AddSubjectState extends State<AddSubject> {
     _subjectController.dispose();
     _teacherController.dispose();
     _roomController.dispose();
-    _beginTime.dispose();
-    _endTime.dispose();
+    _beginTimeController.dispose();
+    _endTimeController.dispose();
 
     super.dispose();
   }
 
   int val = -1;
-  SingingCharacter? _character = SingingCharacter.Lecture;
+  SingingCharacter? _character = SingingCharacter.lecture;
 
   @override
   Widget build(BuildContext context) {
@@ -138,38 +123,38 @@ class _AddSubjectState extends State<AddSubject> {
                   ),
                   RadioListTile(
                       title: Text("Wykład"),
-                      value: SingingCharacter.Lecture,
+                      value: SingingCharacter.lecture,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Lecture;
+                          _character = SingingCharacter.lecture;
                         });
                       }),
                   RadioListTile(
                       title: Text("Ćwiczenia"),
-                      value: SingingCharacter.Excercise,
+                      value: SingingCharacter.exercise,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Excercise;
+                          _character = SingingCharacter.exercise;
                         });
                       }),
                   RadioListTile(
                       title: Text("Laboratorium"),
-                      value: SingingCharacter.Laboratorium,
+                      value: SingingCharacter.laboratory,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Laboratorium;
+                          _character = SingingCharacter.laboratory;
                         });
                       }),
                   RadioListTile(
                       title: Text("Seminarium"),
-                      value: SingingCharacter.Seminary,
+                      value: SingingCharacter.seminary,
                       groupValue: _character,
                       onChanged: (value) {
                         setState(() {
-                          _character = SingingCharacter.Seminary;
+                          _character = SingingCharacter.seminary;
                         });
                       }),
                   const Divider(
@@ -305,28 +290,64 @@ class _AddSubjectState extends State<AddSubject> {
                     endIndent: 5,
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // TODO: Adjust
                     children: [
-                      Container(
-                          width: MediaQuery.of(context).size.width - 40,
-                          child: SwitchListTile(
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal:
-                                    (MediaQuery.of(context).size.width / 2) -
-                                        50),
-                            value: _switchValue,
-                            activeColor: Colors.blue,
-                            onChanged: (bool value) {
-                              setState(() {
-                                _switchValue = !_switchValue;
-                              });
-                            },
-                          )),
+                      SizedBox(
+                        width: 160,
+                        child: TextFormField(
+                          validator: _validateTime,
+                          keyboardType: TextInputType.datetime,
+                          controller: _beginTimeController,
+                          decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.access_time),
+                                onPressed: () => _selectTime(_beginTimeController),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 160, // TODO: Calculate dynamically
+                        child: TextFormField(
+                          validator: _validateTime,
+                          keyboardType: TextInputType.datetime,
+                          controller: _endTimeController,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.access_time),
+                              onPressed: () => _selectTime(_endTimeController),
+                            ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        ),
+                      ),
                     ],
+                  ),
+                  const Divider(
+                    color: Colors.black,
+                    height: 25,
+                    thickness: 0.5,
+                    indent: 5,
+                    endIndent: 5,
+                  ),
+                  Container(
+                    child:
+                      SwitchListTile(
+                        title: Text("Wybierz konkretne tygodnie"),
+                        value: _showSpecificWeeks,
+                        activeColor: Colors.blue,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _showSpecificWeeks = !_showSpecificWeeks;
+                          });
+                        },
+                      ),
                   ),
 
                   Row(
                     children: [
-                      if (_switchValue == true)
+                      if (_showSpecificWeeks == true)
                         Container(
                             width: MediaQuery.of(context).size.width - 40,
                             child: Column(
@@ -339,7 +360,7 @@ class _AddSubjectState extends State<AddSubject> {
                                 _buildCheckBoxes(13, 15, _subjectWeekValues),
                               ],
                             )),
-                      if (_switchValue == false)
+                      if (_showSpecificWeeks == false)
                         Container(
                           width: MediaQuery.of(context).size.width - 40,
                           child: Column(
@@ -353,10 +374,10 @@ class _AddSubjectState extends State<AddSubject> {
                                     child: RadioListTile(
                                       title: const Text('ALL'),
                                       value: TimeType.all,
-                                      groupValue: _typy,
+                                      groupValue: _types,
                                       onChanged: (TimeType? value) {
                                         setState(() {
-                                          _typy = value;
+                                          _types = value;
                                         });
                                       },
                                     ),
@@ -368,10 +389,10 @@ class _AddSubjectState extends State<AddSubject> {
                                     child: RadioListTile(
                                       title: const Text('X1'),
                                       value: TimeType.x1,
-                                      groupValue: _typy,
+                                      groupValue: _types,
                                       onChanged: (TimeType? value) {
                                         setState(() {
-                                          _typy = value;
+                                          _types = value;
                                         });
                                       },
                                     ),
@@ -383,10 +404,10 @@ class _AddSubjectState extends State<AddSubject> {
                                     child: RadioListTile(
                                       title: const Text('X2'),
                                       value: TimeType.x2,
-                                      groupValue: _typy,
+                                      groupValue: _types,
                                       onChanged: (TimeType? value) {
                                         setState(() {
-                                          _typy = value;
+                                          _types = value;
                                         });
                                       },
                                     ),
@@ -435,23 +456,24 @@ class _AddSubjectState extends State<AddSubject> {
   }
 
   addSubject() {
-    final DateTime today = DateTime.now();
-    DateTime startTime = DateTime(today.year, today.month, today.day, 8, 0, 0);
-    DateTime endTime = startTime.add(const Duration(hours: 2));
-
+    final DateTime now = DateTime.now();
+    DateTime _beginTime = timeFormat.parse(_beginTimeController.text);
+    DateTime _endTime = timeFormat.parse(_endTimeController.text);
+    DateTime beginTime = DateTime(now.year, now.month, now.day, _beginTime.hour, _beginTime.minute);
+    DateTime endTime = DateTime(now.year, now.month, now.day, _endTime.hour, _endTime.minute);
     Color color;
 
     switch (_character) {
-      case SingingCharacter.Lecture:
+      case SingingCharacter.lecture:
         color = Colors.orange;
         break;
-      case SingingCharacter.Excercise:
+      case SingingCharacter.exercise:
         color = Colors.teal;
         break;
-      case SingingCharacter.Laboratorium:
+      case SingingCharacter.laboratory:
         color = Colors.blue;
         break;
-      case SingingCharacter.Seminary:
+      case SingingCharacter.seminary:
         color = Colors.redAccent;
         break;
       default:
@@ -460,15 +482,38 @@ class _AddSubjectState extends State<AddSubject> {
 
     widget.subjects.add(Subject(
         '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
-        startTime,
+        beginTime,
         endTime,
         color,
         false));
   }
 
+  void _selectTime(TextEditingController txt) async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: 7, minute: 15),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+      initialEntryMode: TimePickerEntryMode.input,
+    );
+
+    if(newTime != null) {
+      setState(() {
+        final now = new DateTime.now();
+        var now2 =
+        DateTime(now.year, now.month, now.day, newTime.hour, newTime.minute);
+        txt.text = timeFormat.format(now2);
+      });
+    }
+  }
+
   Widget _buildCheckBoxes(int start, int end, List<bool> values) {
     List<Widget> list = [];
-    Widget cb, ca;
+    Widget cb;
     Widget ex;
 
     for (int i = start; i <= end; ++i) {
@@ -477,26 +522,29 @@ class _AddSubjectState extends State<AddSubject> {
           contentPadding: EdgeInsets.symmetric(horizontal: 10),
           title: Text(i.toString()),
           value: values[i - 1],
+          controlAffinity: ListTileControlAffinity.leading,
           onChanged: (value) {
             setState(() {
               values[i - 1] = !values[i - 1];
             });
           });
-      ca = ListTile(
-        dense: true,
-        leading: Checkbox(
-          value: false,
-          onChanged: (bool? value) {},
-        ),
-        title: Text(i.toString()),
-      );
       ex = Expanded(
-        child: ca,
+        child: cb,
       );
       list.add(ex);
     }
     print(list);
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: list);
+  }
+
+  String? _validateTime(timeString) {
+    try {
+      timeFormat.parse(timeString);
+    } on Exception {
+      return "Nieprawidłowy format czsau";
+    }
+
+    return null;
   }
 
   void addToDataBase(
