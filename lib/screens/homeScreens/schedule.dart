@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -142,16 +143,9 @@ class _ScheduleState extends State<Schedule> {
                 'Grupy',
               ),
             ),
-            CheckboxListTile(
-                title: Text("TM6"),
-                controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
-            CheckboxListTile(
-                title: Text("TIZJO1"),
-                controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+            Column(
+              children: getStudentGroups(),
+            ),
           ],
         ),
       ),
@@ -187,6 +181,31 @@ class _ScheduleState extends State<Schedule> {
         ),
       ),
     );
+  }
+
+  List<Widget> getStudentGroups() {
+    User? user = FirebaseAuth.instance.currentUser;
+    List<Widget> groupTiles = [];
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.email)
+        .collection("groups")
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        print('siema');
+        groupTiles.add(
+          CheckboxListTile(
+              title: Text(element.id),
+              controlAffinity: ListTileControlAffinity.leading,
+              value: true,
+              onChanged: (value) {}),
+        );
+      }
+    });
+
+    return groupTiles;
   }
 
   void selectCalendarView(CalendarView calendarView) {
