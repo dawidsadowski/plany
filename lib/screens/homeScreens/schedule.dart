@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
+import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -36,16 +37,22 @@ class _ScheduleState extends State<Schedule> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {},
-            child: IconButton(
-              splashRadius: 20,
-              onPressed: () {},
-              icon: const Icon(
-                Icons.more_vert,
-              ),
-            ),
-          ),
+          PopupMenuButton(
+              onSelected: (result) {
+                if (result == 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsView()),
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  child: Text("Ustawienia"),
+                  value: 0,
+                ),
+              ]
+          )
         ],
       ),
       drawer: Drawer(
@@ -194,7 +201,6 @@ class _ScheduleState extends State<Schedule> {
         .get()
         .then((value) {
       for (var element in value.docs) {
-        print('siema');
         groupTiles.add(
           CheckboxListTile(
               title: Text(element.id),
