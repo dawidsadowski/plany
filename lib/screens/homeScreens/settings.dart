@@ -2,13 +2,20 @@ import 'package:delta_squad_app/screens/homeScreens/group_settings.dart';
 import 'package:flutter/material.dart';
 import 'change_password.dart';
 
-class SettingsView extends StatelessWidget{
+class SettingsView extends StatefulWidget{
   const SettingsView({Key? key}) : super(key: key);
+
+  @override
+  State<SettingsView> createState() => _SettingsViewState();
+}
+
+class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Ustawienia",
-      home: Scaffold(
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("Ustawienia"),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -85,9 +92,6 @@ class SettingsView extends StatelessWidget{
             ),
           ),
         ),
-      ),
-    );
-    throw UnimplementedError();
+      );
   }
-
 }

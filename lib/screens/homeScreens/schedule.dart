@@ -6,6 +6,8 @@ import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:delta_squad_app/screens/homeScreens/settings.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -233,16 +235,22 @@ class _ScheduleState extends State<Schedule> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {},
-            child: IconButton(
-              splashRadius: 20,
-              onPressed: () {},
-              icon: const Icon(
-                Icons.more_vert,
-              ),
-            ),
-          ),
+          PopupMenuButton(
+              onSelected: (result) {
+                if (result == 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsView()),
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  child: Text("Ustawienia"),
+                  value: 0,
+                ),
+              ]
+          )
         ],
       ),
       drawer: Drawer(
@@ -337,16 +345,9 @@ class _ScheduleState extends State<Schedule> {
                 'Grupy',
               ),
             ),
-            CheckboxListTile(
-                title: Text("TM6"),
-                controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
-            CheckboxListTile(
-                title: Text("TIZJO1"),
-                controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+            Column(
+              children: getStudentGroups(),
+            ),
           ],
         ),
       ),
@@ -382,6 +383,30 @@ class _ScheduleState extends State<Schedule> {
         ),
       ),
     );
+  }
+
+  List<Widget> getStudentGroups() {
+    User? user = FirebaseAuth.instance.currentUser;
+    List<Widget> groupTiles = [];
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.email)
+        .collection("groups")
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        groupTiles.add(
+          CheckboxListTile(
+              title: Text(element.id),
+              controlAffinity: ListTileControlAffinity.leading,
+              value: true,
+              onChanged: (value) {}),
+        );
+      }
+    });
+
+    return groupTiles;
   }
 
   void selectCalendarView(CalendarView calendarView) {
