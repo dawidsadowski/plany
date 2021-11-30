@@ -28,8 +28,11 @@ class _ScheduleState extends State<Schedule> {
   void initState() {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-
     User? user = firebaseAuth.currentUser;
+
+    list = [];
+    schedule = [];
+    subjects = <Appointment>[];
 
     var docRef = firebaseFirestore
         .collection("semester")
@@ -115,46 +118,54 @@ class _ScheduleState extends State<Schedule> {
                 for (int i = 0; i < list.length; i++) {
                   for (int j = 0; j < schedule.length; j++) {
                     if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
-                      DateTime beginTime = DateTime.fromMicrosecondsSinceEpoch(
-                          schedule[j].beginTime!.microsecondsSinceEpoch);
-                      DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
-                          schedule[j].endTime!.microsecondsSinceEpoch);
+                      int weeek = list[i].weekOfSemester - 1;
+                      if (schedule[j].weeks![weeek]) {
+                        DateTime beginTime =
+                            DateTime.fromMicrosecondsSinceEpoch(
+                                schedule[j].beginTime!.microsecondsSinceEpoch);
+                        DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
+                            schedule[j].endTime!.microsecondsSinceEpoch);
 
-                      Color color = Colors.blue;
+                        Color color = Colors.blue;
 
-                      switch (schedule[j].type) {
-                        case SingingCharacter.lecture:
-                          color = Colors.orange;
-                          break;
-                        case SingingCharacter.exercise:
-                          color = Colors.teal;
-                          break;
-                        case SingingCharacter.laboratory:
-                          color = Colors.blue;
-                          break;
-                        case SingingCharacter.seminary:
-                          color = Colors.redAccent;
-                          break;
-                        default:
-                          color = Colors.lime;
+                        switch (schedule[j].type) {
+                          case SingingCharacter.lecture:
+                            color = Colors.orange;
+                            break;
+                          case SingingCharacter.exercise:
+                            color = Colors.teal;
+                            break;
+                          case SingingCharacter.laboratory:
+                            color = Colors.blue;
+                            break;
+                          case SingingCharacter.seminary:
+                            color = Colors.redAccent;
+                            break;
+                          default:
+                            color = Colors.lime;
+                        }
+
+                        setState(() {
+                          subjects.add(Appointment(
+                            startTime: DateTime(
+                                2021,
+                                list[i].monthOfYear,
+                                list[i].dayOfMonth,
+                                beginTime.hour,
+                                beginTime.minute),
+                            endTime: DateTime(
+                                2021,
+                                list[i].monthOfYear,
+                                list[i].dayOfMonth,
+                                endTime.hour,
+                                endTime.minute),
+                            subject:
+                                '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
+                            color: color,
+                            //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+                          ));
+                        });
                       }
-
-                      setState(() {
-                        subjects.add(Appointment(
-                          startTime: DateTime(
-                              2021,
-                              list[i].monthOfYear,
-                              list[i].dayOfMonth,
-                              beginTime.hour,
-                              beginTime.minute),
-                          endTime: DateTime(2021, list[i].monthOfYear,
-                              list[i].dayOfMonth, endTime.hour, endTime.minute),
-                          subject:
-                              '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
-                          color: color,
-                          //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
-                        ));
-                      });
                     }
                   }
                 }
@@ -331,6 +342,7 @@ class _ScheduleState extends State<Schedule> {
                     AddSubject(subjects: subjects, details: _details)),
           );
 
+          initState();
           setState(() {});
         },
         child: const Icon(Icons.add),
@@ -347,8 +359,8 @@ class _ScheduleState extends State<Schedule> {
           dataSource: MeetingDataSource(subjects),
           timeSlotViewSettings: const TimeSlotViewSettings(
             timeFormat: "HH:mm",
-            // startHour: 7,
-            // endHour: 21,
+            startHour: 7,
+            endHour: 21,
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),

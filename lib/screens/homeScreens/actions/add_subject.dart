@@ -524,25 +524,12 @@ class _AddSubjectState extends State<AddSubject> {
     //     color,
     //     false));
 
-    RecurrenceProperties recurrence = RecurrenceProperties(
-        startDate: beginTime,
-        recurrenceType: RecurrenceType.weekly,
-        interval: 1,
-        recurrenceRange: RecurrenceRange.count,
-        recurrenceCount: 10,
-        weekDays: [
-          _weekDay
-        ]
-    );
-
-
     widget.subjects.add(
       Appointment(
         startTime: beginTime,
         endTime: endTime,
         subject: '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
         color: color,
-        recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
       )
     );
   }
