@@ -1,4 +1,5 @@
 import 'package:delta_squad_app/classes/subject.dart';
+import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,11 +14,6 @@ class AddSubject extends StatefulWidget {
   _AddSubjectState createState() => _AddSubjectState();
 }
 
-enum Days { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
-
-enum TimeType { all, x1, x2 }
-
-enum SingingCharacter { Lecture, Excercise, Laboratorium, Seminary }
 
 class _AddSubjectState extends State<AddSubject> {
   late TextEditingController _subjectController;
@@ -414,6 +410,16 @@ class _AddSubjectState extends State<AddSubject> {
                     child: const Text('Dodaj'),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
+                        addToDataBase(
+                            _subjectController,
+                            _teacherController,
+                            _roomController,
+                            _beginTime,
+                            _endTime,
+                            _character,
+                            _switchValue,
+                            _subjectWeekValues,
+                            _typy);
                         addSubject();
                         Navigator.pop(context);
                       }
@@ -491,5 +497,47 @@ class _AddSubjectState extends State<AddSubject> {
     }
     print(list);
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: list);
+  }
+
+  void addToDataBase(
+      TextEditingController subjectController,
+      TextEditingController teacherController,
+      TextEditingController roomController,
+      TextEditingController beginTime,
+      TextEditingController endTime,
+      SingingCharacter? character,
+      bool switchValue,
+      List<bool> subjectWeekValues,
+      TimeType? typy) {
+
+    if (!switchValue) {
+      if (typy == TimeType.x1) {
+        for (int i = 0; i < 15; i++) {
+          if (i % 2 == 0) {
+            subjectWeekValues[i] = true;
+          } else {
+            subjectWeekValues[i] = false;
+          }
+        }
+      } else if (typy == TimeType.x2) {
+        for (int i = 0; i < 15; i++) {
+          if (i % 2 == 0) {
+            subjectWeekValues[i] = false;
+          } else {
+            subjectWeekValues[i] = true;
+          }
+        }
+      } else {
+        for (int i = 0; i < 15; i++) {
+          subjectWeekValues[i] = true;
+        }
+      }
+    }
+
+
+
+
+
+
   }
 }
