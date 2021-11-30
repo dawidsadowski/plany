@@ -1,9 +1,7 @@
-import 'dart:html';
 
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class SubjectModel{
-  String? email;
+class SubjectModel {
   String? name;
   String? instructor;
   String? hall;
@@ -13,19 +11,24 @@ class SubjectModel{
   List<bool>? weeks;
   WeekDays? day;
 
-  SubjectModel(this.email, this.name, this.instructor, this.hall,this.beginTime,this.endTime, this.type,
-      this.weeks, this.day);
+  SubjectModel(
+      this.name,
+      this.instructor,
+      this.hall,
+      this.beginTime,
+      this.endTime,
+      this.type,
+      this.weeks,
+      this.day);
 
   Map<String, dynamic> sendToSchedule() {
-    return{
-      'email':email,
-      'day':day,
-      'hall':hall,
-      'instructor':instructor,
-      'name':name,
-      'type':type,
-      'weeks':weeks,
-
+    return {
+      'day': day!.index,
+      'hall': hall,
+      'instructor': instructor,
+      'name': name,
+      'type': type!.index,
+      'weeks': weeks,
     };
   }
 }

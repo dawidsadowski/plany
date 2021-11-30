@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +16,6 @@ class AddSubject extends StatefulWidget {
   @override
   _AddSubjectState createState() => _AddSubjectState();
 }
-
-enum TimeType { all, x1, x2 }
-
-enum SingingCharacter { lecture, exercise, laboratory, seminary }
 
 class _AddSubjectState extends State<AddSubject> {
   late TextEditingController _subjectController;
@@ -467,7 +462,7 @@ class _AddSubjectState extends State<AddSubject> {
                             _roomController,
                             _beginTimeController,
                             _endTimeController,
-                            WeekDays.monday,
+                            _weekDay,
                             _character,
                             _showSpecificWeeks,
                             _subjectWeekValues,
@@ -652,15 +647,27 @@ class _AddSubjectState extends State<AddSubject> {
 
     User? user = firebaseAuth.currentUser;
 
-    SubjectModel model = SubjectModel("test",subjectController.text,teacherController.text,roomController.text,beginTime.text,endTime.text,character,subjectWeekValues,day);
+    SubjectModel model = SubjectModel(
+        subjectController.text,
+        teacherController.text,
+        roomController.text,
+        beginTime.text,
+        endTime.text,
+        character,
+        subjectWeekValues,
+        day);
 
     await firebaseFirestore
         .collection("users")
         .doc(user!.email)
         .collection("schedule")
+        .doc(day.index.toString())
+        .collection("subjects")
         .doc()
         .set(model.sendToSchedule());
 
 
   }
+
+
 }
