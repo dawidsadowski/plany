@@ -349,7 +349,6 @@ class _ScheduleState extends State<Schedule> {
       ),
       body: SafeArea(
         child: SfCalendar(
-          appointmentTextStyle: const TextStyle(fontSize: 20),
           controller: _controller,
           onLongPress: (details) {
             if(_calendarView == CalendarView.month) {
@@ -359,6 +358,7 @@ class _ScheduleState extends State<Schedule> {
               });
             }
           },
+          appointmentTextStyle: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
           onTap: (details) {
             setState(() {
               _details = details;
@@ -370,6 +370,11 @@ class _ScheduleState extends State<Schedule> {
             timeFormat: "HH:mm",
             startHour: 7,
             endHour: 21,
+            timeIntervalHeight: 70,
+
+              timeTextStyle:TextStyle(fontSize: 16,color: Colors.black54),
+            timeRulerSize: 70,
+
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),
