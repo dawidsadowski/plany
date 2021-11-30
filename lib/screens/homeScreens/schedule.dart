@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -18,36 +21,200 @@ class _ScheduleState extends State<Schedule> {
   CalendarView _calendarView = CalendarView.day;
   List<Appointment> subjects = <Appointment>[];
   CalendarTapDetails? _details;
-  List<TimeTable> list=[];
+  List<TimeTable> list = [];
+  List<SubjectModel> schedule = [];
 
   @override
   void initState() {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-    var docRef = firebaseFirestore.collection("semester").doc("winter21-22").collection("days");
+    User? user = firebaseAuth.currentUser;
 
-    getData(docRef,(data){
+    var docRef = firebaseFirestore
+        .collection("semester")
+        .doc("winter21-22")
+        .collection("days");
+    var pon = firebaseFirestore
+        .collection("users")
+        .doc(user!.email)
+        .collection("schedule")
+        .doc("1")
+        .collection("subjects");
+    var wt = firebaseFirestore
+        .collection("users")
+        .doc(user.email)
+        .collection("schedule")
+        .doc("2")
+        .collection("subjects");
+    var sr = firebaseFirestore
+        .collection("users")
+        .doc(user.email)
+        .collection("schedule")
+        .doc("3")
+        .collection("subjects");
+    var czw = firebaseFirestore
+        .collection("users")
+        .doc(user.email)
+        .collection("schedule")
+        .doc("4")
+        .collection("subjects");
+    var pt = firebaseFirestore
+        .collection("users")
+        .doc(user.email)
+        .collection("schedule")
+        .doc("5")
+        .collection("subjects");
 
-
+    getData(docRef, (data) {
       List<dynamic> lista = data.docs.map((doc) => doc.data()).toList();
-
-      for(int i=0;i<lista.length;i++)
-      {
-        dynamic t = lista.elementAt(i) ;
-        TimeTable tt = TimeTable(
-            t['monthOfYear'],
-            t['weekOfSemester'],
-            t['dayOfWeek'],
-            t['dayOfMonth']
-
-        );
+      for (int i = 0; i < lista.length; i++) {
+        dynamic t = lista.elementAt(i);
+        TimeTable tt = TimeTable(t['monthOfYear'], t['weekOfSemester'],
+            t['dayOfWeek'], t['dayOfMonth']);
         list.add(tt);
       }
       print(list[0].weekOfSemester);
+
+      getSchedule(pon, (data) {
+        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+        for (int i = 0; i < sch_pon.length; i++) {
+          dynamic sch = sch_pon.elementAt(i);
+          SubjectModel sub = SubjectModel.withoutWeeks(
+              sch['name'],
+              sch['instructor'],
+              sch['hall'],
+              "8:00",
+              "10:00",
+              SingingCharacter.values[sch['type']],
+              WeekDays.values[sch['day']]);
+          List<bool> wee = sch['weeks'].cast<bool>();
+          sub.weeks = wee;
+          schedule.add(sub);
+        }
+      });
+
+      getSchedule(pon, (data) {
+        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+        for (int i = 0; i < sch_pon.length; i++) {
+          dynamic sch = sch_pon.elementAt(i);
+          SubjectModel sub = SubjectModel.withoutWeeks(
+              sch['name'],
+              sch['instructor'],
+              sch['hall'],
+              "8:00",
+              "10:00",
+              SingingCharacter.values[sch['type']],
+              WeekDays.values[sch['day']]);
+          List<bool> wee = sch['weeks'].cast<bool>();
+          sub.weeks = wee;
+          schedule.add(sub);
+        }
+      });
+
+      getSchedule(wt, (data) {
+        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+        for (int i = 0; i < sch_pon.length; i++) {
+          dynamic sch = sch_pon.elementAt(i);
+          SubjectModel sub = SubjectModel.withoutWeeks(
+              sch['name'],
+              sch['instructor'],
+              sch['hall'],
+              "8:00",
+              "10:00",
+              SingingCharacter.values[sch['type']],
+              WeekDays.values[sch['day']]);
+          List<bool> wee = sch['weeks'].cast<bool>();
+          sub.weeks = wee;
+          schedule.add(sub);
+        }
+      });
+
+      getSchedule(sr, (data) {
+        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+        for (int i = 0; i < sch_pon.length; i++) {
+          dynamic sch = sch_pon.elementAt(i);
+          SubjectModel sub = SubjectModel.withoutWeeks(
+              sch['name'],
+              sch['instructor'],
+              sch['hall'],
+              "8:00",
+              "10:00",
+              SingingCharacter.values[sch['type']],
+              WeekDays.values[sch['day']]);
+          List<bool> wee = sch['weeks'].cast<bool>();
+          sub.weeks = wee;
+          schedule.add(sub);
+        }
+      });
+
+      getSchedule(czw, (data) {
+        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+        for (int i = 0; i < sch_pon.length; i++) {
+          dynamic sch = sch_pon.elementAt(i);
+          SubjectModel sub = SubjectModel.withoutWeeks(
+              sch['name'],
+              sch['instructor'],
+              sch['hall'],
+              "8:00",
+              "10:00",
+              SingingCharacter.values[sch['type']],
+              WeekDays.values[sch['day']]);
+          List<bool> wee = sch['weeks'].cast<bool>();
+          sub.weeks = wee;
+          schedule.add(sub);
+        }
+      });
+
+      getSchedule(pt, (data) {
+        List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+
+        for (int i = 0; i < sch_pon.length; i++) {
+          dynamic sch = sch_pon.elementAt(i);
+          SubjectModel sub = SubjectModel.withoutWeeks(
+              sch['name'],
+              sch['instructor'],
+              sch['hall'],
+              "8:00",
+              "10:00",
+              SingingCharacter.values[sch['type']],
+              WeekDays.values[sch['day']]);
+
+          List<bool> wee = sch['weeks'].cast<bool>();
+          sub.weeks = wee;
+
+          schedule.add(sub);
+          print(sub.name);
+        }
+
+        for (int i = 0; i < list.length; i++) {
+          for (int j = 0; j < schedule.length; j++) {
+            if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
+              DateTime dd =
+                  DateTime(2021, list[i].monthOfYear, list[i].dayOfMonth, 12);
+              subjects.add(Appointment(
+                startTime:
+                    DateTime(2021, list[i].monthOfYear, list[i].dayOfMonth, 12),
+                endTime:
+                    DateTime(2021, list[i].monthOfYear, list[i].dayOfMonth, 12)
+                        .add(Duration(hours: 2)),
+                subject:
+                    '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
+                color: Colors.orange,
+                //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+              ));
+            }
+          }
+        }
+      });
     });
 
-
-
+    sleep(Duration(milliseconds: 500));
   }
 
   @override
@@ -225,17 +392,21 @@ class _ScheduleState extends State<Schedule> {
     });
   }
 
-  Future<void> getData(CollectionReference collectionReference,Function callback)  async {
+  Future<void> getData(
+      CollectionReference collectionReference, Function callback) async {
     // Get docs from collection reference
     QuerySnapshot querySnapshot = await collectionReference.get();
 
     callback(querySnapshot);
 
     // Get data from docs and convert map to List
-
   }
 
-
+  void getSchedule(
+      CollectionReference collectionReference, Function function) async {
+    QuerySnapshot querySnapshot = await collectionReference.get();
+    function(querySnapshot);
+  }
 }
 
 class MeetingDataSource extends CalendarDataSource {

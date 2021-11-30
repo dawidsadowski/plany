@@ -21,6 +21,10 @@ class SubjectModel {
       this.weeks,
       this.day);
 
+
+  SubjectModel.withoutWeeks(this.name, this.instructor, this.hall, this.beginTime,
+      this.endTime, this.type, this.day);
+
   Map<String, dynamic> sendToSchedule() {
     return {
       'day': day!.index,
