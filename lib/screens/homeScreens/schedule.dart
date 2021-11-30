@@ -195,6 +195,8 @@ class _ScheduleState extends State<Schedule> {
         for (int i = 0; i < list.length; i++) {
           for (int j = 0; j < schedule.length; j++) {
             if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
+              int weeek = list[i].weekOfSemester - 1;
+              if(schedule[j].weeks![weeek])
               setState(() {
                 subjects.add(Appointment(
                   startTime: DateTime(
