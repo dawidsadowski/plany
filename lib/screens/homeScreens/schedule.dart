@@ -349,7 +349,16 @@ class _ScheduleState extends State<Schedule> {
       ),
       body: SafeArea(
         child: SfCalendar(
+          appointmentTextStyle: const TextStyle(fontSize: 20),
           controller: _controller,
+          onLongPress: (details) {
+            if(_calendarView == CalendarView.month) {
+              setState(() {
+                _calendarView = CalendarView.day;
+                _controller.view = CalendarView.day;
+              });
+            }
+          },
           onTap: (details) {
             setState(() {
               _details = details;
@@ -396,8 +405,9 @@ class _ScheduleState extends State<Schedule> {
     setState(() {
       _calendarView = calendarView;
       _controller.view = calendarView;
-      Navigator.pop(context);
     });
+
+    Navigator.pop(context);
   }
 
   Future<void> getData(
