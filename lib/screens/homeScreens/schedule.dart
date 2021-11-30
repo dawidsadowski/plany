@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -197,26 +195,24 @@ class _ScheduleState extends State<Schedule> {
         for (int i = 0; i < list.length; i++) {
           for (int j = 0; j < schedule.length; j++) {
             if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
-              DateTime dd =
-                  DateTime(2021, list[i].monthOfYear, list[i].dayOfMonth, 12);
-              subjects.add(Appointment(
-                startTime:
-                    DateTime(2021, list[i].monthOfYear, list[i].dayOfMonth, 12),
-                endTime:
-                    DateTime(2021, list[i].monthOfYear, list[i].dayOfMonth, 12)
-                        .add(Duration(hours: 2)),
-                subject:
-                    '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
-                color: Colors.orange,
-                //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
-              ));
+              setState(() {
+                subjects.add(Appointment(
+                  startTime: DateTime(
+                      2021, list[i].monthOfYear, list[i].dayOfMonth, 12),
+                  endTime: DateTime(
+                          2021, list[i].monthOfYear, list[i].dayOfMonth, 12)
+                      .add(Duration(hours: 2)),
+                  subject:
+                      '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
+                  color: Colors.orange,
+                  //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+                ));
+              });
             }
           }
         }
       });
     });
-
-    sleep(Duration(milliseconds: 500));
   }
 
   @override
@@ -240,17 +236,17 @@ class _ScheduleState extends State<Schedule> {
                 if (result == 0) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsView()),
+                    MaterialPageRoute(
+                        builder: (context) => const SettingsView()),
                   );
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
-                  child: Text("Ustawienia"),
-                  value: 0,
-                ),
-              ]
-          )
+                    const PopupMenuItem(
+                      child: Text("Ustawienia"),
+                      value: 0,
+                    ),
+                  ])
         ],
       ),
       drawer: Drawer(
@@ -376,8 +372,8 @@ class _ScheduleState extends State<Schedule> {
           dataSource: MeetingDataSource(subjects),
           timeSlotViewSettings: const TimeSlotViewSettings(
             timeFormat: "HH:mm",
-            // startHour: 0,
-            // endHour: 23,
+             startHour: 7,
+             endHour: 21,
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),
