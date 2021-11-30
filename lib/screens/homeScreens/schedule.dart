@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -17,7 +18,37 @@ class _ScheduleState extends State<Schedule> {
   CalendarView _calendarView = CalendarView.day;
   List<Appointment> subjects = <Appointment>[];
   CalendarTapDetails? _details;
+  List<TimeTable> list=[];
 
+  @override
+  void initState() {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+    var docRef = firebaseFirestore.collection("semester").doc("winter21-22").collection("days");
+
+    getData(docRef,(data){
+
+
+      List<dynamic> lista = data.docs.map((doc) => doc.data()).toList();
+
+      for(int i=0;i<lista.length;i++)
+      {
+        dynamic t = lista.elementAt(i) ;
+        TimeTable tt = TimeTable(
+            t['monthOfYear'],
+            t['weekOfSemester'],
+            t['dayOfWeek'],
+            t['dayOfMonth']
+
+        );
+        list.add(tt);
+      }
+      print(list[0].weekOfSemester);
+    });
+
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +94,7 @@ class _ScheduleState extends State<Schedule> {
                       color: Colors.black54,
                     ),
                   ),
-                  Icon(
-                      Icons.today,
-                      color: Colors.black54
-                  ),
+                  Icon(Icons.today, color: Colors.black54),
                 ],
               ),
             ),
@@ -196,6 +224,18 @@ class _ScheduleState extends State<Schedule> {
       Navigator.pop(context);
     });
   }
+
+  Future<void> getData(CollectionReference collectionReference,Function callback)  async {
+    // Get docs from collection reference
+    QuerySnapshot querySnapshot = await collectionReference.get();
+
+    callback(querySnapshot);
+
+    // Get data from docs and convert map to List
+
+  }
+
+
 }
 
 class MeetingDataSource extends CalendarDataSource {
