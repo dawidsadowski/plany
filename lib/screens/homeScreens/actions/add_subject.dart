@@ -528,7 +528,7 @@ class _AddSubjectState extends State<AddSubject> {
       Appointment(
         startTime: beginTime,
         endTime: endTime,
-        subject: '${_subjectController.text}\n${_teacherController.text}\n${_roomController.text}',
+        subject: '${_subjectController.text}\n\n${_teacherController.text}\n\n${_roomController.text}',
         color: color,
       )
     );
