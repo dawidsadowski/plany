@@ -66,7 +66,7 @@ class _LoginState extends State<Login> {
                     validator: (val) =>
                         val!.isNotEmpty ? null : "Wprowadź adres e-mail",
                     decoration: InputDecoration(
-                        hintText: "E-mail",
+                        label: Text("E-mail"),
                         prefixIcon: Icon(Icons.mail),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10))),
@@ -78,7 +78,7 @@ class _LoginState extends State<Login> {
                         val!.length < 6 ? "Wprowadź więcej niż 6 znaków" : null,
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
-                        hintText: "Hasło",
+                        label: Text("Hasło"),
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
                             splashColor: Colors.transparent,
@@ -112,7 +112,9 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: loginProvider.isLoading
-                          ? CircularProgressIndicator()
+                          ? CircularProgressIndicator(
+                              valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Colors.white))
                           : Text("Zaloguj się",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold))),

@@ -72,7 +72,7 @@ class _RegisterState extends State<Register> {
                     validator: (val) =>
                     val!.isNotEmpty ? null : "Wprowadź imię",
                     decoration: InputDecoration(
-                        hintText: "Imie",
+                        label: Text("Imię"),
                         prefixIcon: Icon(Icons.perm_identity),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10))),
@@ -83,7 +83,7 @@ class _RegisterState extends State<Register> {
                     validator: (val) =>
                     val!.isNotEmpty ? null : "Wprowadź nazwisko",
                     decoration: InputDecoration(
-                        hintText: "Nazwisko",
+                        label: Text("Nazwisko"),
                         prefixIcon: Icon(Icons.perm_identity),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10))),
@@ -94,7 +94,7 @@ class _RegisterState extends State<Register> {
                     validator: (val) =>
                         val!.isNotEmpty ? null : "Wprowadź adres e-mail",
                     decoration: InputDecoration(
-                        hintText: "E-mail",
+                        label: Text("E-mail"),
                         prefixIcon: Icon(Icons.mail),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10))),
@@ -106,7 +106,7 @@ class _RegisterState extends State<Register> {
                         val!.length < 6 ? "Wprowadź więcej niż 6 znaków" : null,
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
-                        hintText: "Hasło",
+                        label: Text("Hasło"),
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
                             splashColor: Colors.transparent,

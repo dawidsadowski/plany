@@ -1,7 +1,4 @@
-import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class ChangePassword extends StatefulWidget {
   ChangePassword({Key? key}) : super(key: key);
@@ -57,7 +54,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                   TextFormField(
                     controller: _oldPasswordController,
                     decoration: InputDecoration(
-                        hintText: "Stare hasło",
+                        label: Text("Stare hasło"),
                         prefixIcon: const Icon(Icons.vpn_key),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10))),
@@ -67,7 +64,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                     controller: _newPasswordController,
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
-                        hintText: "Nowe hasło",
+                        label: Text("Nowe hasło"),
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
                             splashColor: Colors.transparent,
@@ -87,7 +84,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                     controller: _newPasswordCheckController,
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
-                        hintText: "Nowe hasło",
+                        label: Text("Powtórz nowe hasło"),
                         prefixIcon: Icon(Icons.vpn_key),
                         suffixIcon: IconButton(
                             splashColor: Colors.transparent,

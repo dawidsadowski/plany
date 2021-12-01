@@ -58,12 +58,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(height: 30),
                 Text(
-                  loggedInUser.imie! +" "+ loggedInUser.nazwisko!,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 30),
-                Text(
-                  "Wydział: "+ loggedInUser.wydzial! +"\nKierunek: "+ loggedInUser.kierunek!,
+                  'Witaj, ${loggedInUser.imie!} ${loggedInUser.nazwisko!}!',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 30),
