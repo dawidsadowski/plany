@@ -26,12 +26,25 @@ class _ScheduleState extends State<Schedule> {
   List<TimeTable> list = [];
   List<SubjectModel> schedule = [];
 
+  bool isRefreshed = true;
+  bool showLectures = true;
+  bool showExercises = true;
+  bool showLaboratories = true;
+  bool showSeminaries = true;
+  bool showOther = true;
+
   @override
   void initState() {
     refreshCalendar();
   }
 
   void refreshCalendar() {
+    if(!isRefreshed) {
+      return;
+    }
+
+    isRefreshed = !isRefreshed;
+
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     User? user = firebaseAuth.currentUser;
@@ -119,19 +132,24 @@ class _ScheduleState extends State<Schedule> {
 
                         switch (schedule[j].type) {
                           case SingingCharacter.lecture:
+                            if(!showLectures) continue;
                             color = Colors.orange;
                             break;
                           case SingingCharacter.exercise:
+                            if(!showExercises) continue;
                             color = Colors.teal;
                             break;
                           case SingingCharacter.laboratory:
+                            if(!showLaboratories) continue;
                             color = Colors.blue;
                             break;
                           case SingingCharacter.seminary:
+                            if(!showSeminaries) continue;
                             color = Colors.redAccent;
                             break;
                           default:
-                            color = Colors.lime;
+                            if(!showOther) continue;
+                            color = Colors.grey;
                         }
 
                         setState(() {
@@ -160,7 +178,9 @@ class _ScheduleState extends State<Schedule> {
                   }
                 }
 
-                setState(() {});
+                setState(() {
+                  isRefreshed = !isRefreshed;
+                });
               });
             });
           });
@@ -202,7 +222,8 @@ class _ScheduleState extends State<Schedule> {
         actions: [
           PopupMenuButton(
               onSelected: (result) async {
-                if (result == 0) {
+                if (result == -1) {
+                } else if (result == 0) {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -219,6 +240,10 @@ class _ScheduleState extends State<Schedule> {
                 refreshCalendar();
               },
               itemBuilder: (context) => [
+                const PopupMenuItem(
+                  child: Text("Refresh"),
+                  value: -1,
+                ),
                 const PopupMenuItem(
                   child: Text("Ustawienia"),
                   value: 0,
@@ -286,32 +311,62 @@ class _ScheduleState extends State<Schedule> {
                 activeColor: Colors.orange,
                 title: Text("Wykłady"),
                 controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+                value: showLectures,
+                onChanged: (value) {
+                  setState(() {
+                    showLectures = !showLectures;
+                  });
+
+                  refreshCalendar();
+                }),
             CheckboxListTile(
                 activeColor: Colors.teal,
                 title: Text("Ćwiczenia"),
                 controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+                value: showExercises,
+                onChanged: (value) {
+                  setState(() {
+                    showExercises = !showExercises;
+                  });
+
+                  refreshCalendar();
+                }),
             CheckboxListTile(
                 activeColor: Colors.blue,
                 title: Text("Laboratoria"),
                 controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+                value: showLaboratories,
+                onChanged: (value) {
+                  setState(() {
+                    showLaboratories = !showLaboratories;
+                  });
+
+                  refreshCalendar();
+                }),
             CheckboxListTile(
                 activeColor: Colors.redAccent,
                 title: Text("Seminaria"),
                 controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+                value: showSeminaries,
+                onChanged: (value) {
+                  setState(() {
+                    showSeminaries = !showSeminaries;
+                  });
+
+                  refreshCalendar();
+                }),
             CheckboxListTile(
                 activeColor: Colors.black54,
                 title: Text("Inne"),
                 controlAffinity: ListTileControlAffinity.leading,
-                value: true,
-                onChanged: (value) {}),
+                value: showOther,
+                onChanged: (value) {
+                  setState(() {
+                    showOther = !showOther;
+                  });
+
+                  refreshCalendar();
+                }),
             const Divider(
               height: 1,
               thickness: 1,
@@ -344,6 +399,7 @@ class _ScheduleState extends State<Schedule> {
       ),
       body: SafeArea(
         child: SfCalendar(
+
           controller: _controller,
           onLongPress: (details) {
             if(_calendarView == CalendarView.month) {

@@ -45,4 +45,4 @@ enum Days { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
 enum TimeType { all, x1, x2 }
 
-enum SingingCharacter { lecture, exercise, laboratory, seminary }
+enum SingingCharacter { lecture, exercise, laboratory, seminary, other }
