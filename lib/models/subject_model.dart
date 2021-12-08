@@ -11,6 +11,7 @@ class SubjectModel {
   SingingCharacter? type;
   List<bool>? weeks;
   WeekDays? day;
+  DocumentReference<Object?>? reference;
 
   SubjectModel(
       this.name,
@@ -24,7 +25,7 @@ class SubjectModel {
 
 
   SubjectModel.withoutWeeks(this.name, this.instructor, this.hall, this.beginTime,
-      this.endTime, this.type, this.day);
+      this.endTime, this.type, this.day, this.reference);
 
   Map<String, dynamic> sendToSchedule() {
     return {

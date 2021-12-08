@@ -1,3 +1,4 @@
+import 'package:delta_squad_app/classes/subject.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
@@ -10,7 +11,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 class AddSubject extends StatefulWidget {
   const AddSubject({Key? key, required this.subjects, required this.details}) : super(key: key);
 
-  final List<Appointment> subjects;
+  final List<Subject> subjects;
   final CalendarTapDetails? details;
 
   @override
@@ -525,7 +526,7 @@ class _AddSubjectState extends State<AddSubject> {
     //     false));
 
     widget.subjects.add(
-      Appointment(
+      Subject(
         startTime: beginTime,
         endTime: endTime,
         subject: '${_subjectController.text}\n\n${_teacherController.text}\n\n${_roomController.text}',
