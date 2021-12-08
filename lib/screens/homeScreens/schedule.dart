@@ -1,12 +1,14 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Schedule extends StatefulWidget {
@@ -19,10 +21,12 @@ class Schedule extends StatefulWidget {
 class _ScheduleState extends State<Schedule> {
   final CalendarController _controller = CalendarController();
   CalendarView _calendarView = CalendarView.day;
-  List<Appointment> subjects = <Appointment>[];
+  List<Subject> subjects = <Subject>[];
   CalendarTapDetails? _details;
   List<TimeTable> list = [];
   List<SubjectModel> schedule = [];
+
+  Subject? _selectedSubject;
 
   @override
   void initState() {
@@ -32,7 +36,7 @@ class _ScheduleState extends State<Schedule> {
 
     list = [];
     schedule = [];
-    subjects = <Appointment>[];
+    subjects = <Subject>[];
 
     var docRef = firebaseFirestore
         .collection("semester")
@@ -92,28 +96,7 @@ class _ScheduleState extends State<Schedule> {
               getScheduleData(data);
 
               getSchedule(pt, (data) {
-                List<dynamic> sch_pon =
-                    data.docs.map((doc) => doc.data()).toList();
-
-                for (int i = 0; i < sch_pon.length; i++) {
-                  dynamic sch = sch_pon.elementAt(i);
-                  SubjectModel sub = SubjectModel.withoutWeeks(
-                      sch['name'],
-                      sch['instructor'],
-                      sch['hall'],
-                      sch['beginTime'],
-                      sch['endTime'],
-                      SingingCharacter.values[sch['type']],
-                      WeekDays.values[sch['day']]);
-
-                  List<bool> wee = sch['weeks'].cast<bool>();
-                  sub.weeks = wee;
-
-                  setState(() {
-                    schedule.add(sub);
-                  });
-                  print(sub.name);
-                }
+                getScheduleData(data);
 
                 for (int i = 0; i < list.length; i++) {
                   for (int j = 0; j < schedule.length; j++) {
@@ -146,7 +129,7 @@ class _ScheduleState extends State<Schedule> {
                         }
 
                         setState(() {
-                          subjects.add(Appointment(
+                          subjects.add(Subject(
                             startTime: DateTime(
                                 2021,
                                 list[i].monthOfYear,
@@ -162,6 +145,7 @@ class _ScheduleState extends State<Schedule> {
                             subject:
                                 '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
                             color: color,
+                            reference: schedule[j].reference,
                             //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
                           ));
                         });
@@ -191,7 +175,10 @@ class _ScheduleState extends State<Schedule> {
           sch['beginTime'],
           sch['endTime'],
           SingingCharacter.values[sch['type']],
-          WeekDays.values[sch['day']]);
+          WeekDays.values[sch['day']],
+          data.docs.elementAt(i).reference
+      );
+
       List<bool> wee = sch['weeks'].cast<bool>();
       sub.weeks = wee;
 
@@ -357,8 +344,28 @@ class _ScheduleState extends State<Schedule> {
                 _controller.view = CalendarView.day;
               });
             }
+
+            // TODO: Implement Subject editing
+            if(_calendarView == CalendarView.day) {
+              if(details.appointments != null) {
+                _selectedSubject = details.appointments![0];
+
+                // Just for visual aspect
+                setState(() {
+                  subjects.remove(_selectedSubject);
+                });
+
+                _selectedSubject!.reference!.delete().then((value) {
+                  initState();
+                  Fluttertoast.showToast(msg: 'Usunięto ${_selectedSubject!.subject.split('\n')[0]}');
+                });
+              }
+            }
           },
-          appointmentTextStyle: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+          appointmentTextStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+          ),
           onTap: (details) {
             setState(() {
               _details = details;
@@ -370,11 +377,9 @@ class _ScheduleState extends State<Schedule> {
             timeFormat: "HH:mm",
             startHour: 7,
             endHour: 21,
+            timeRulerSize: 60,
             timeIntervalHeight: 70,
-
-              timeTextStyle:TextStyle(fontSize: 16,color: Colors.black54),
-            timeRulerSize: 70,
-
+            timeTextStyle:TextStyle(fontSize: 16,color: Colors.black54),
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),
@@ -433,7 +438,7 @@ class _ScheduleState extends State<Schedule> {
 }
 
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Appointment> source) {
+  MeetingDataSource(List<Subject> source) {
     appointments = source;
   }
 
@@ -462,10 +467,10 @@ class MeetingDataSource extends CalendarDataSource {
     return _getMeetingData(index).isAllDay;
   }
 
-  Appointment _getMeetingData(int index) {
+  Subject _getMeetingData(int index) {
     final dynamic meeting = appointments![index];
-    late final Appointment meetingData;
-    if (meeting is Appointment) {
+    late final Subject meetingData;
+    if (meeting is Subject) {
       meetingData = meeting;
     }
 
