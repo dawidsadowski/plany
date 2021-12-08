@@ -5,10 +5,10 @@ import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
+import 'package:delta_squad_app/screens/homeScreens/semester_settings.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Schedule extends StatefulWidget {
@@ -26,10 +26,12 @@ class _ScheduleState extends State<Schedule> {
   List<TimeTable> list = [];
   List<SubjectModel> schedule = [];
 
-  Subject? _selectedSubject;
-
   @override
   void initState() {
+    refreshCalendar();
+  }
+
+  void refreshCalendar() {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     User? user = firebaseAuth.currentUser;
@@ -77,11 +79,15 @@ class _ScheduleState extends State<Schedule> {
       List<dynamic> lista = data.docs.map((doc) => doc.data()).toList();
       for (int i = 0; i < lista.length; i++) {
         dynamic t = lista.elementAt(i);
-        TimeTable tt = TimeTable(t['monthOfYear'], t['weekOfSemester'],
-            t['dayOfWeek'], t['dayOfMonth']);
+        TimeTable tt = TimeTable(
+            t['monthOfYear'],
+            t['weekOfSemester'],
+            t['dayOfWeek'],
+            t['dayOfMonth'],
+            t['year']
+        );
         list.add(tt);
       }
-      print(list[0].weekOfSemester);
 
       getSchedule(pon, (data) {
         getScheduleData(data);
@@ -131,13 +137,13 @@ class _ScheduleState extends State<Schedule> {
                         setState(() {
                           subjects.add(Subject(
                             startTime: DateTime(
-                                2021,
+                                list[i].year,
                                 list[i].monthOfYear,
                                 list[i].dayOfMonth,
                                 beginTime.hour,
                                 beginTime.minute),
                             endTime: DateTime(
-                                2021,
+                                list[i].year,
                                 list[i].monthOfYear,
                                 list[i].dayOfMonth,
                                 endTime.hour,
@@ -194,31 +200,33 @@ class _ScheduleState extends State<Schedule> {
       appBar: AppBar(
         title: Text("Plan zajęć"),
         actions: [
-          GestureDetector(
-            onTap: () {},
-            child: IconButton(
-              splashRadius: 20,
-              onPressed: () {},
-              icon: const Icon(
-                Icons.search,
-              ),
-            ),
-          ),
           PopupMenuButton(
-              onSelected: (result) {
+              onSelected: (result) async {
                 if (result == 0) {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const SettingsView()),
                   );
+                } else if(result == 1) {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SemesterSettingsView()),
+                  );
                 }
+
+                refreshCalendar();
               },
               itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      child: Text("Ustawienia"),
-                      value: 0,
-                    ),
+                const PopupMenuItem(
+                  child: Text("Ustawienia"),
+                  value: 0,
+                ),
+                const PopupMenuItem(
+                  child: Text("Ustawienia semestru"),
+                  value: 1,
+                ),
                   ])
         ],
       ),
@@ -329,7 +337,7 @@ class _ScheduleState extends State<Schedule> {
                     AddSubject(subjects: subjects, details: _details)),
           );
 
-          initState();
+          refreshCalendar();
           setState(() {});
         },
         child: const Icon(Icons.add),
@@ -348,17 +356,17 @@ class _ScheduleState extends State<Schedule> {
             // TODO: Implement Subject editing
             if(_calendarView == CalendarView.day) {
               if(details.appointments != null) {
-                _selectedSubject = details.appointments![0];
 
-                // Just for visual aspect
-                setState(() {
-                  subjects.remove(_selectedSubject);
-                });
-
-                _selectedSubject!.reference!.delete().then((value) {
-                  initState();
-                  Fluttertoast.showToast(msg: 'Usunięto ${_selectedSubject!.subject.split('\n')[0]}');
-                });
+                // TODO: Add removal confirmation dialog
+                // // Just for visual aspect
+                // setState(() {
+                //   subjects.remove(_selectedSubject);
+                // });
+                //
+                // _selectedSubject!.reference!.delete().then((value) {
+                //   refreshCalendar();
+                //   Fluttertoast.showToast(msg: 'Usunięto ${_selectedSubject!.subject.split('\n')[0]}');
+                // });
               }
             }
           },
