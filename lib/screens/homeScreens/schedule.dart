@@ -26,6 +26,15 @@ class _ScheduleState extends State<Schedule> {
   List<TimeTable> list = [];
   List<SubjectModel> schedule = [];
 
+  List<SubjectModel> scheduleMonday = [];
+  List<SubjectModel> scheduleTuesday = [];
+  List<SubjectModel> scheduleWednesday = [];
+  List<SubjectModel> scheduleThursday = [];
+  List<SubjectModel> scheduleFriday = [];
+
+  List<SubjectModel> scheduleSaturday = [];
+  List<SubjectModel> scheduleSunday = [];
+
   Subject? _selectedSubject;
 
   @override
@@ -37,6 +46,15 @@ class _ScheduleState extends State<Schedule> {
     list = [];
     schedule = [];
     subjects = <Subject>[];
+
+    scheduleMonday = [];
+    scheduleTuesday = [];
+    scheduleWednesday = [];
+    scheduleThursday = [];
+    scheduleFriday = [];
+
+
+
 
     var docRef = firebaseFirestore
         .collection("semester")
@@ -82,79 +100,55 @@ class _ScheduleState extends State<Schedule> {
         list.add(tt);
       }
       print(list[0].weekOfSemester);
-
       getSchedule(pon, (data) {
-        getScheduleData(data);
+        getScheduleData(data, scheduleMonday);
 
         getSchedule(wt, (data) {
-          getScheduleData(data);
+          getScheduleData(data, scheduleTuesday);
 
           getSchedule(sr, (data) {
-            getScheduleData(data);
+            getScheduleData(data, scheduleWednesday);
 
             getSchedule(czw, (data) {
-              getScheduleData(data);
+              getScheduleData(data, scheduleThursday);
 
               getSchedule(pt, (data) {
-                getScheduleData(data);
+                getScheduleData(data, scheduleFriday);
 
-                for (int i = 0; i < list.length; i++) {
-                  for (int j = 0; j < schedule.length; j++) {
-                    if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
-                      int weeek = list[i].weekOfSemester - 1;
-                      if (schedule[j].weeks![weeek]) {
-                        DateTime beginTime =
-                            DateTime.fromMicrosecondsSinceEpoch(
-                                schedule[j].beginTime!.microsecondsSinceEpoch);
-                        DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
-                            schedule[j].endTime!.microsecondsSinceEpoch);
-
-                        Color color = Colors.blue;
-
-                        switch (schedule[j].type) {
-                          case SingingCharacter.lecture:
-                            color = Colors.orange;
-                            break;
-                          case SingingCharacter.exercise:
-                            color = Colors.teal;
-                            break;
-                          case SingingCharacter.laboratory:
-                            color = Colors.blue;
-                            break;
-                          case SingingCharacter.seminary:
-                            color = Colors.redAccent;
-                            break;
-                          default:
-                            color = Colors.lime;
-                        }
-
-                        setState(() {
-                          subjects.add(Subject(
-                            startTime: DateTime(
-                                2021,
-                                list[i].monthOfYear,
-                                list[i].dayOfMonth,
-                                beginTime.hour,
-                                beginTime.minute),
-                            endTime: DateTime(
-                                2021,
-                                list[i].monthOfYear,
-                                list[i].dayOfMonth,
-                                endTime.hour,
-                                endTime.minute),
-                            subject:
-                                '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
-                            color: color,
-                            reference: schedule[j].reference,
-                            //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
-                          ));
-                        });
-                      }
+                    firebaseFirestore
+                    .collection("semester")
+                    .doc("0")
+                    .get().then((value) {
+                  Timestamp start=value.data()!["startDate"];
+                  Timestamp end= value.data()!["endDate"];
+                  DateTime startDate = DateTime.fromMicrosecondsSinceEpoch(start.microsecondsSinceEpoch);
+                  DateTime endDate = DateTime.fromMicrosecondsSinceEpoch(end.microsecondsSinceEpoch);
+                  //todo: main petla
+                  for(DateTime i = startDate;i.isBefore(endDate);i=i.add(Duration(days: 1))){
+                    //todo: sprawdź czy dana data nie pojawila sie w tabeli exlusion
+                    switch(i.weekday){
+                      case 1://mon
+                        addToSchedule(i,scheduleMonday);
+                        break;
+                      case 2:
+                        addToSchedule(i,scheduleTuesday);
+                        break;
+                      case 3:
+                        addToSchedule(i,scheduleWednesday);
+                        break;
+                      case 4:
+                        addToSchedule(i,scheduleThursday);
+                        break;
+                      case 5:
+                        addToSchedule(i,scheduleFriday);
+                        break;
+                      case 6:
+                        break;
+                      case 7:
+                        break;
                     }
                   }
-                }
-
-                setState(() {});
+                });
               });
             });
           });
@@ -162,8 +156,56 @@ class _ScheduleState extends State<Schedule> {
       });
     });
   }
+  void addToSchedule(DateTime date,List<SubjectModel> subjectsModels){
+    for (var element in subjectsModels) {
+      DateTime beginTime =
+      DateTime.fromMicrosecondsSinceEpoch(
+          element.beginTime!.microsecondsSinceEpoch);
+      DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
+          element.endTime!.microsecondsSinceEpoch);
 
-  void getScheduleData(data) {
+      Color color = Colors.blue;
+        switch (element.type) {
+          case SingingCharacter.lecture:
+            color = Colors.orange;
+            break;
+          case SingingCharacter.exercise:
+            color = Colors.teal;
+            break;
+          case SingingCharacter.laboratory:
+            color = Colors.blue;
+            break;
+          case SingingCharacter.seminary:
+            color = Colors.redAccent;
+            break;
+          default:
+            color = Colors.lime;
+        }
+
+      setState(() {
+        subjects.add(Subject(
+          startTime: DateTime(
+              date.year,
+              date.month,
+              date.day,
+              beginTime.hour,
+              beginTime.minute),
+          endTime: DateTime(
+              date.year,
+              date.month,
+              date.day,
+              endTime.hour,
+              endTime.minute),
+          subject:
+          '${element.name}\n${element.instructor}\n${element.hall}',
+          color: color,
+          reference: element.reference,
+          //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+        ));
+      });
+    }
+  }
+  void getScheduleData(data,lista) {
     List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
 
     for (int i = 0; i < sch_pon.length; i++) {
@@ -176,14 +218,13 @@ class _ScheduleState extends State<Schedule> {
           sch['endTime'],
           SingingCharacter.values[sch['type']],
           WeekDays.values[sch['day']],
-          data.docs.elementAt(i).reference
-      );
+          data.docs.elementAt(i).reference);
 
       List<bool> wee = sch['weeks'].cast<bool>();
       sub.weeks = wee;
 
       setState(() {
-        schedule.add(sub);
+        lista.add(sub);
       });
     }
   }
@@ -338,7 +379,7 @@ class _ScheduleState extends State<Schedule> {
         child: SfCalendar(
           controller: _controller,
           onLongPress: (details) {
-            if(_calendarView == CalendarView.month) {
+            if (_calendarView == CalendarView.month) {
               setState(() {
                 _calendarView = CalendarView.day;
                 _controller.view = CalendarView.day;
@@ -346,8 +387,8 @@ class _ScheduleState extends State<Schedule> {
             }
 
             // TODO: Implement Subject editing
-            if(_calendarView == CalendarView.day) {
-              if(details.appointments != null) {
+            if (_calendarView == CalendarView.day) {
+              if (details.appointments != null) {
                 _selectedSubject = details.appointments![0];
 
                 // Just for visual aspect
@@ -357,14 +398,16 @@ class _ScheduleState extends State<Schedule> {
 
                 _selectedSubject!.reference!.delete().then((value) {
                   initState();
-                  Fluttertoast.showToast(msg: 'Usunięto ${_selectedSubject!.subject.split('\n')[0]}');
+                  Fluttertoast.showToast(
+                      msg:
+                          'Usunięto ${_selectedSubject!.subject.split('\n')[0]}');
                 });
               }
             }
           },
           appointmentTextStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
           onTap: (details) {
             setState(() {
@@ -379,7 +422,7 @@ class _ScheduleState extends State<Schedule> {
             endHour: 21,
             timeRulerSize: 60,
             timeIntervalHeight: 70,
-            timeTextStyle:TextStyle(fontSize: 16,color: Colors.black54),
+            timeTextStyle: TextStyle(fontSize: 16, color: Colors.black54),
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),
@@ -475,5 +518,6 @@ class MeetingDataSource extends CalendarDataSource {
     }
 
     return meetingData;
-  }
+  }//
+
 }
