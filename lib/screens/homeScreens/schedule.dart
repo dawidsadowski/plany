@@ -38,12 +38,16 @@ class _ScheduleState extends State<Schedule> {
 
   @override
   void initState() {
-    getGroups();
-
-    refreshCalendar();
+    initData();
   }
 
-  void getGroups() {
+  void initData() async{
+    await getGroups();
+    
+    await refreshCalendar();
+  }
+
+  Future<void> getGroups() async{
     if (!isRefreshedGroup) {
       return;
     }
@@ -75,8 +79,8 @@ class _ScheduleState extends State<Schedule> {
     });
   }
 
-  void refreshCalendar() {
-    if (!isRefreshed) {
+  Future<void> refreshCalendar() async {
+    if (!isRefreshed && !isRefreshedGroup) {
       return;
     }
 
@@ -130,13 +134,27 @@ class _ScheduleState extends State<Schedule> {
           getScheduleData(data);
         });
       }
+
+      if(element==grupy[grupy.length-1])
+        {
+          await getSchedule(scheduleRef, (data) {
+            getScheduleData(data);
+
+            addSubjectsToSchedule();
+          });
+        }
     }
-    
-    await getSchedule(scheduleRef, (data) {
-      getScheduleData(data);
-    
-      addSubjectsToSchedule();
-    });
+
+    if(grupy.isEmpty)
+      {
+        await getSchedule(scheduleRef, (data) {
+          getScheduleData(data);
+
+          addSubjectsToSchedule();
+        });
+      }
+
+
   }
 
   void addSubjectsToSchedule() {
@@ -226,8 +244,7 @@ class _ScheduleState extends State<Schedule> {
           PopupMenuButton(
               onSelected: (result) async {
                 if (result == -1) {
-                  getGroups();
-                  refreshCalendar();
+                  initData();
                 } else if (result == 0) {
                   await Navigator.push(
                     context,
@@ -248,6 +265,7 @@ class _ScheduleState extends State<Schedule> {
                             subjects: subjects, details: _details)),
                   );
                 }
+
               },
               itemBuilder: (context) => [
                     const PopupMenuItem(
