@@ -1,30 +1,34 @@
-import 'package:delta_squad_app/classes/subject.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:filter_list/filter_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class AddSubject extends StatefulWidget {
-  const AddSubject({Key? key, required this.subjects, required this.details}) : super(key: key);
+class AddSubjectGroup extends StatefulWidget {
+  const AddSubjectGroup(
+      {Key? key, required this.subjects, required this.details})
+      : super(key: key);
 
   final List<Subject> subjects;
   final CalendarTapDetails? details;
 
   @override
-  _AddSubjectState createState() => _AddSubjectState();
+  _AddSubjectGroupState createState() => _AddSubjectGroupState();
 }
 
-class _AddSubjectState extends State<AddSubject> {
+class _AddSubjectGroupState extends State<AddSubjectGroup> {
   late TextEditingController _subjectController;
   late TextEditingController _teacherController;
   late TextEditingController _roomController;
   late TextEditingController _beginTimeController;
   late TextEditingController _endTimeController;
   late bool _showSpecificWeeks;
+  List<Group>? selectedGroupList = [];
+  List<Group> groupList = [];
 
   WeekDays _weekDay = WeekDays.monday;
   TimeType? _types = TimeType.all;
@@ -42,11 +46,28 @@ class _AddSubjectState extends State<AddSubject> {
     _endTimeController = TextEditingController();
     _showSpecificWeeks = false;
 
-    if(widget.details != null) {
-      _beginTimeController.text = timeFormat.format(widget.details!.date!);
-      _endTimeController.text = timeFormat.format(widget.details!.date!.add(const Duration(hours: 1)));
+    FirebaseFirestore.instance.collection("groups").get().then((value) {
+      for (var element in value.docs) {
+        Group group = Group(element.id, element.reference);
 
-      switch(widget.details!.date!.weekday) {
+        //print(selectedGroupList);
+
+        for (var selectedGroup in selectedGroupList!) {
+          if (selectedGroup.name == element.id) {
+            group = selectedGroup;
+          }
+        }
+
+        groupList.add(group);
+      }
+    });
+
+    if (widget.details != null) {
+      _beginTimeController.text = timeFormat.format(widget.details!.date!);
+      _endTimeController.text = timeFormat
+          .format(widget.details!.date!.add(const Duration(hours: 1)));
+
+      switch (widget.details!.date!.weekday) {
         case 1:
           _weekDay = WeekDays.monday;
           break;
@@ -69,7 +90,6 @@ class _AddSubjectState extends State<AddSubject> {
           _weekDay = WeekDays.sunday;
           break;
       }
-
     } else {
       _beginTimeController.text = "08:00";
       _endTimeController.text = "09:00";
@@ -96,7 +116,7 @@ class _AddSubjectState extends State<AddSubject> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dodaj przedmiot"),
+        title: Text("Dodaj przedmiot dla grupy"),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -107,6 +127,31 @@ class _AddSubjectState extends State<AddSubject> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  MaterialButton(
+                    height: 60,
+                    minWidth: double.infinity,
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text('Wybierz grupy (${selectedGroupList!.length})'),
+                    onPressed: () async {
+                      var list = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FilterPageGroup(
+                                allTextList: groupList,
+                                selectedUserList: selectedGroupList)),
+                      );
+                      if (list != null) {
+                        setState(() {
+                          selectedGroupList = List.from(list);
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(height: 20),
                   TextFormField(
                     controller: _subjectController,
                     textInputAction: TextInputAction.next,
@@ -319,7 +364,8 @@ class _AddSubjectState extends State<AddSubject> {
                     endIndent: 5,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // TODO: Adjust
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // TODO: Adjust
                     children: [
                       SizedBox(
                         width: 160,
@@ -330,7 +376,8 @@ class _AddSubjectState extends State<AddSubject> {
                           decoration: InputDecoration(
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.access_time),
-                                onPressed: () => _selectTime(_beginTimeController),
+                                onPressed: () =>
+                                    _selectTime(_beginTimeController),
                               ),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10))),
@@ -343,10 +390,11 @@ class _AddSubjectState extends State<AddSubject> {
                           keyboardType: TextInputType.datetime,
                           controller: _endTimeController,
                           decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.access_time),
-                              onPressed: () => _selectTime(_endTimeController),
-                            ),
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.access_time),
+                                onPressed: () =>
+                                    _selectTime(_endTimeController),
+                              ),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10))),
                         ),
@@ -361,17 +409,16 @@ class _AddSubjectState extends State<AddSubject> {
                     endIndent: 5,
                   ),
                   Container(
-                    child:
-                      SwitchListTile(
-                        title: Text("Wybierz konkretne tygodnie"),
-                        value: _showSpecificWeeks,
-                        activeColor: Colors.blue,
-                        onChanged: (bool value) {
-                          setState(() {
-                            _showSpecificWeeks = !_showSpecificWeeks;
-                          });
-                        },
-                      ),
+                    child: SwitchListTile(
+                      title: Text("Wybierz konkretne tygodnie"),
+                      value: _showSpecificWeeks,
+                      activeColor: Colors.blue,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _showSpecificWeeks = !_showSpecificWeeks;
+                        });
+                      },
+                    ),
                   ),
 
                   Row(
@@ -398,7 +445,8 @@ class _AddSubjectState extends State<AddSubject> {
                                 children: [
                                   SizedBox(
                                     width: (MediaQuery.of(context).size.width -
-                                            40) / 3,
+                                            40) /
+                                        3,
                                     child: RadioListTile(
                                       title: const Text('ALL'),
                                       value: TimeType.all,
@@ -412,7 +460,8 @@ class _AddSubjectState extends State<AddSubject> {
                                   ),
                                   SizedBox(
                                     width: (MediaQuery.of(context).size.width -
-                                            40) / 3,
+                                            40) /
+                                        3,
                                     child: RadioListTile(
                                       title: const Text('X1'),
                                       value: TimeType.x1,
@@ -426,7 +475,8 @@ class _AddSubjectState extends State<AddSubject> {
                                   ),
                                   SizedBox(
                                     width: (MediaQuery.of(context).size.width -
-                                            40) / 3,
+                                            40) /
+                                        3,
                                     child: RadioListTile(
                                       title: const Text('X2'),
                                       value: TimeType.x2,
@@ -457,18 +507,21 @@ class _AddSubjectState extends State<AddSubject> {
                     child: const Text('Dodaj'),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        addToDataBase(
-                            _subjectController,
-                            _teacherController,
-                            _roomController,
-                            _beginTimeController,
-                            _endTimeController,
-                            _weekDay,
-                            _character,
-                            _showSpecificWeeks,
-                            _subjectWeekValues,
-                            _types);
-                        addSubject();
+                        for (var element in selectedGroupList!) {
+                          addToDataBase(
+                              _subjectController,
+                              _teacherController,
+                              _roomController,
+                              _beginTimeController,
+                              _endTimeController,
+                              _weekDay,
+                              _character,
+                              _showSpecificWeeks,
+                              _subjectWeekValues,
+                              _types,
+                              element);
+                        }
+
                         Navigator.pop(context);
                       }
                     },
@@ -482,10 +535,10 @@ class _AddSubjectState extends State<AddSubject> {
     );
   }
 
-  DateTime getNearestDateByDayOfTheWeek(WeekDays day){
+  DateTime getNearestDateByDayOfTheWeek(WeekDays day) {
     var now = DateTime.now();
 
-    while(now.weekday % 7 != day.index) {
+    while (now.weekday % 7 != day.index) {
       now = now.add(const Duration(days: 1));
     }
 
@@ -496,8 +549,10 @@ class _AddSubjectState extends State<AddSubject> {
     final DateTime now = getNearestDateByDayOfTheWeek(_weekDay);
     DateTime _beginTime = timeFormat.parse(_beginTimeController.text);
     DateTime _endTime = timeFormat.parse(_endTimeController.text);
-    DateTime beginTime = DateTime(now.year, now.month, now.day, _beginTime.hour, _beginTime.minute);
-    DateTime endTime = DateTime(now.year, now.month, now.day, _endTime.hour, _endTime.minute);
+    DateTime beginTime = DateTime(
+        now.year, now.month, now.day, _beginTime.hour, _beginTime.minute);
+    DateTime endTime =
+        DateTime(now.year, now.month, now.day, _endTime.hour, _endTime.minute);
     Color color;
 
     switch (_character) {
@@ -525,14 +580,13 @@ class _AddSubjectState extends State<AddSubject> {
     //     color,
     //     false));
 
-    widget.subjects.add(
-      Subject(
-        startTime: beginTime,
-        endTime: endTime,
-        subject: '${_subjectController.text}\n\n${_teacherController.text}\n\n${_roomController.text}',
-        color: color,
-      )
-    );
+    widget.subjects.add(Subject(
+      startTime: beginTime,
+      endTime: endTime,
+      subject:
+          '${_subjectController.text}\n\n${_teacherController.text}\n\n${_roomController.text}',
+      color: color,
+    ));
   }
 
   void _selectTime(TextEditingController txt) async {
@@ -548,11 +602,11 @@ class _AddSubjectState extends State<AddSubject> {
       initialEntryMode: TimePickerEntryMode.input,
     );
 
-    if(newTime != null) {
+    if (newTime != null) {
       setState(() {
         final now = new DateTime.now();
-        var now2 =
-        DateTime(now.year, now.month, now.day, newTime.hour, newTime.minute);
+        var now2 = DateTime(
+            now.year, now.month, now.day, newTime.hour, newTime.minute);
         txt.text = timeFormat.format(now2);
       });
     }
@@ -580,7 +634,7 @@ class _AddSubjectState extends State<AddSubject> {
       );
       list.add(ex);
     }
-    //print(list);
+
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: list);
   }
 
@@ -604,8 +658,8 @@ class _AddSubjectState extends State<AddSubject> {
       SingingCharacter? character,
       bool switchValue,
       List<bool> subjectWeekValues,
-      TimeType? types) async{
-
+      TimeType? types,
+      Group group) async {
     if (!switchValue) {
       if (types == TimeType.x1) {
         for (int i = 0; i < 15; i++) {
@@ -631,9 +685,6 @@ class _AddSubjectState extends State<AddSubject> {
     }
 
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-
-    User? user = firebaseAuth.currentUser;
 
     SubjectModel model = SubjectModel(
         subjectController.text,
@@ -646,14 +697,85 @@ class _AddSubjectState extends State<AddSubject> {
         day);
 
     await firebaseFirestore
-        .collection("users")
-        .doc(user!.email)
+        .collection("groups")
+        .doc(group.name)
         .collection("schedule")
         .doc()
         .set(model.sendToSchedule());
-
-
   }
+}
 
+class FilterPageGroup extends StatelessWidget {
+  const FilterPageGroup({Key? key, this.allTextList, this.selectedUserList})
+      : super(key: key);
+  final List<Group>? allTextList;
+  final List<Group>? selectedUserList;
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Wybór grup"),
+      ),
+      body: SafeArea(
+        child: FilterListWidget<Group>(
+          listData: allTextList,
+          selectedListData: selectedUserList,
+          hideHeaderText: true,
+          searchFieldHintText: "Wyszukaj grupy",
+          allButtonText: "Wszystkie",
+          resetButtonText: "Reset",
+          applyButtonText: "Zatwierdź",
+          buttonSpacing: 20,
+          hideSelectedTextCount: true,
+          onApplyButtonClick: (list) async {
+
+            Navigator.pop(context, list);
+          },
+          choiceChipLabel: (item) {
+            /// Used to print text on chip
+
+            return item!.name;
+          },
+          choiceChipBuilder: (context, item, isSelected) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                  border: Border.all(
+                color: isSelected! ? Colors.blue[300]! : Colors.grey[300]!,
+              )),
+              child: Text(item.name),
+            );
+          },
+          validateSelectedItem: (list, val) {
+            ///  identify if item is selected or not
+
+            return list!.contains(val);
+          },
+          onItemSearch: (list, text) {
+            /// When text change in search text field then return list containing that text value
+            ///
+            ///Check if list has value which matchs to text
+            if (list!.any((element) =>
+                element.name!.toLowerCase().contains(text.toLowerCase()))) {
+              /// return list which contains matches
+              return list
+                  .where((element) =>
+                      element.name!.toLowerCase().contains(text.toLowerCase()))
+                  .toList();
+            }
+            return [];
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class Group {
+  final String? name;
+  final DocumentReference? reference;
+
+  Group(this.name, this.reference);
 }
