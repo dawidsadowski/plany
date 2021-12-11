@@ -649,8 +649,6 @@ class _AddSubjectState extends State<AddSubject> {
         .collection("users")
         .doc(user!.email)
         .collection("schedule")
-        .doc(day.index.toString())
-        .collection("subjects")
         .doc()
         .set(model.sendToSchedule());
 

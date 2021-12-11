@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:filter_list/filter_list.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -117,7 +116,7 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dodaj przedmiot"),
+        title: Text("Dodaj przedmiot dla grupy"),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -152,6 +151,7 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
                       }
                     },
                   ),
+                  SizedBox(height: 20),
                   TextFormField(
                     controller: _subjectController,
                     textInputAction: TextInputAction.next,
@@ -507,18 +507,21 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
                     child: const Text('Dodaj'),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        addToDataBase(
-                            _subjectController,
-                            _teacherController,
-                            _roomController,
-                            _beginTimeController,
-                            _endTimeController,
-                            _weekDay,
-                            _character,
-                            _showSpecificWeeks,
-                            _subjectWeekValues,
-                            _types);
-                        addSubject();
+                        for (var element in selectedGroupList!) {
+                          addToDataBase(
+                              _subjectController,
+                              _teacherController,
+                              _roomController,
+                              _beginTimeController,
+                              _endTimeController,
+                              _weekDay,
+                              _character,
+                              _showSpecificWeeks,
+                              _subjectWeekValues,
+                              _types,
+                              element);
+                        }
+
                         Navigator.pop(context);
                       }
                     },
@@ -655,7 +658,8 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
       SingingCharacter? character,
       bool switchValue,
       List<bool> subjectWeekValues,
-      TimeType? types) async {
+      TimeType? types,
+      Group group) async {
     if (!switchValue) {
       if (types == TimeType.x1) {
         for (int i = 0; i < 15; i++) {
@@ -681,9 +685,6 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
     }
 
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-
-    User? user = firebaseAuth.currentUser;
 
     SubjectModel model = SubjectModel(
         subjectController.text,
@@ -696,11 +697,9 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
         day);
 
     await firebaseFirestore
-        .collection("users")
-        .doc(user!.email)
+        .collection("groups")
+        .doc(group.name)
         .collection("schedule")
-        .doc(day.index.toString())
-        .collection("subjects")
         .doc()
         .set(model.sendToSchedule());
   }

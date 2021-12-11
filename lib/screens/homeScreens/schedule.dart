@@ -40,7 +40,7 @@ class _ScheduleState extends State<Schedule> {
   }
 
   void refreshCalendar() {
-    if(!isRefreshed) {
+    if (!isRefreshed) {
       return;
     }
 
@@ -58,133 +58,80 @@ class _ScheduleState extends State<Schedule> {
         .collection("semester")
         .doc("winter21-22")
         .collection("days");
-    var pon = firebaseFirestore
+
+    var scheduleRef = firebaseFirestore
         .collection("users")
         .doc(user!.email)
-        .collection("schedule")
-        .doc("1")
-        .collection("subjects");
-    var wt = firebaseFirestore
-        .collection("users")
-        .doc(user.email)
-        .collection("schedule")
-        .doc("2")
-        .collection("subjects");
-    var sr = firebaseFirestore
-        .collection("users")
-        .doc(user.email)
-        .collection("schedule")
-        .doc("3")
-        .collection("subjects");
-    var czw = firebaseFirestore
-        .collection("users")
-        .doc(user.email)
-        .collection("schedule")
-        .doc("4")
-        .collection("subjects");
-    var pt = firebaseFirestore
-        .collection("users")
-        .doc(user.email)
-        .collection("schedule")
-        .doc("5")
-        .collection("subjects");
+        .collection("schedule");
+
+
 
     getData(docRef, (data) {
       List<dynamic> lista = data.docs.map((doc) => doc.data()).toList();
       for (int i = 0; i < lista.length; i++) {
         dynamic t = lista.elementAt(i);
-        TimeTable tt = TimeTable(
-            t['monthOfYear'],
-            t['weekOfSemester'],
-            t['dayOfWeek'],
-            t['dayOfMonth'],
-            t['year']
-        );
+        TimeTable tt = TimeTable(t['monthOfYear'], t['weekOfSemester'],
+            t['dayOfWeek'], t['dayOfMonth'], t['year']);
         list.add(tt);
       }
 
-      getSchedule(pon, (data) {
+      getSchedule(scheduleRef, (data) {
         getScheduleData(data);
 
-        getSchedule(wt, (data) {
-          getScheduleData(data);
+        for (int i = 0; i < list.length; i++) {
+          for (int j = 0; j < schedule.length; j++) {
+            if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
+              int weeek = list[i].weekOfSemester - 1;
+              if (schedule[j].weeks![weeek]) {
+                DateTime beginTime = DateTime.fromMicrosecondsSinceEpoch(
+                    schedule[j].beginTime!.microsecondsSinceEpoch);
+                DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
+                    schedule[j].endTime!.microsecondsSinceEpoch);
 
-          getSchedule(sr, (data) {
-            getScheduleData(data);
+                Color color = Colors.blue;
 
-            getSchedule(czw, (data) {
-              getScheduleData(data);
-
-              getSchedule(pt, (data) {
-                getScheduleData(data);
-
-                for (int i = 0; i < list.length; i++) {
-                  for (int j = 0; j < schedule.length; j++) {
-                    if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
-                      int weeek = list[i].weekOfSemester - 1;
-                      if (schedule[j].weeks![weeek]) {
-                        DateTime beginTime =
-                            DateTime.fromMicrosecondsSinceEpoch(
-                                schedule[j].beginTime!.microsecondsSinceEpoch);
-                        DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
-                            schedule[j].endTime!.microsecondsSinceEpoch);
-
-                        Color color = Colors.blue;
-
-                        switch (schedule[j].type) {
-                          case SingingCharacter.lecture:
-                            if(!showLectures) continue;
-                            color = Colors.orange;
-                            break;
-                          case SingingCharacter.exercise:
-                            if(!showExercises) continue;
-                            color = Colors.teal;
-                            break;
-                          case SingingCharacter.laboratory:
-                            if(!showLaboratories) continue;
-                            color = Colors.blue;
-                            break;
-                          case SingingCharacter.seminary:
-                            if(!showSeminaries) continue;
-                            color = Colors.redAccent;
-                            break;
-                          default:
-                            if(!showOther) continue;
-                            color = Colors.grey;
-                        }
-
-                        setState(() {
-                          subjects.add(Subject(
-                            startTime: DateTime(
-                                list[i].year,
-                                list[i].monthOfYear,
-                                list[i].dayOfMonth,
-                                beginTime.hour,
-                                beginTime.minute),
-                            endTime: DateTime(
-                                list[i].year,
-                                list[i].monthOfYear,
-                                list[i].dayOfMonth,
-                                endTime.hour,
-                                endTime.minute),
-                            subject:
-                                '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
-                            color: color,
-                            reference: schedule[j].reference,
-                            //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
-                          ));
-                        });
-                      }
-                    }
-                  }
+                switch (schedule[j].type) {
+                  case SingingCharacter.lecture:
+                    if (!showLectures) continue;
+                    color = Colors.orange;
+                    break;
+                  case SingingCharacter.exercise:
+                    if (!showExercises) continue;
+                    color = Colors.teal;
+                    break;
+                  case SingingCharacter.laboratory:
+                    if (!showLaboratories) continue;
+                    color = Colors.blue;
+                    break;
+                  case SingingCharacter.seminary:
+                    if (!showSeminaries) continue;
+                    color = Colors.redAccent;
+                    break;
+                  default:
+                    if (!showOther) continue;
+                    color = Colors.grey;
                 }
 
                 setState(() {
-                  isRefreshed = !isRefreshed;
+                  subjects.add(Subject(
+                    startTime: DateTime(list[i].year, list[i].monthOfYear,
+                        list[i].dayOfMonth, beginTime.hour, beginTime.minute),
+                    endTime: DateTime(list[i].year, list[i].monthOfYear,
+                        list[i].dayOfMonth, endTime.hour, endTime.minute),
+                    subject:
+                        '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
+                    color: color,
+                    reference: schedule[j].reference,
+                    //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+                  ));
                 });
-              });
-            });
-          });
+              }
+            }
+          }
+        }
+
+        setState(() {
+          isRefreshed = !isRefreshed;
         });
       });
     });
@@ -203,8 +150,7 @@ class _ScheduleState extends State<Schedule> {
           sch['endTime'],
           SingingCharacter.values[sch['type']],
           WeekDays.values[sch['day']],
-          data.docs.elementAt(i).reference
-      );
+          data.docs.elementAt(i).reference);
 
       List<bool> wee = sch['weeks'].cast<bool>();
       sub.weeks = wee;
@@ -230,39 +176,40 @@ class _ScheduleState extends State<Schedule> {
                     MaterialPageRoute(
                         builder: (context) => const SettingsView()),
                   );
-                } else if(result == 1) {
+                } else if (result == 1) {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const SemesterSettingsView()),
                   );
-                }else if(result == 2) {
+                } else if (result == 2) {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>  AddSubjectGroup(subjects: subjects, details: _details)),
+                        builder: (context) => AddSubjectGroup(
+                            subjects: subjects, details: _details)),
                   );
                 }
 
                 refreshCalendar();
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
-                  child: Text("Refresh"),
-                  value: -1,
-                ),
-                const PopupMenuItem(
-                  child: Text("Ustawienia"),
-                  value: 0,
-                ),
-                const PopupMenuItem(
-                  child: Text("Ustawienia semestru"),
-                  value: 1,
-                ),
-                const PopupMenuItem(
-                  child: Text("Dodaj przedmiot grupowy"),
-                  value: 2,
-                ),
+                    const PopupMenuItem(
+                      child: Text("Odśwież"),
+                      value: -1,
+                    ),
+                    const PopupMenuItem(
+                      child: Text("Ustawienia"),
+                      value: 0,
+                    ),
+                    const PopupMenuItem(
+                      child: Text("Ustawienia semestru"),
+                      value: 1,
+                    ),
+                    const PopupMenuItem(
+                      child: Text("Dodaj przedmiot grupowy"),
+                      value: 2,
+                    ),
                   ])
         ],
       ),
@@ -410,10 +357,9 @@ class _ScheduleState extends State<Schedule> {
       ),
       body: SafeArea(
         child: SfCalendar(
-
           controller: _controller,
           onLongPress: (details) {
-            if(_calendarView == CalendarView.month) {
+            if (_calendarView == CalendarView.month) {
               setState(() {
                 _calendarView = CalendarView.day;
                 _controller.view = CalendarView.day;
@@ -421,9 +367,8 @@ class _ScheduleState extends State<Schedule> {
             }
 
             // TODO: Implement Subject editing
-            if(_calendarView == CalendarView.day) {
-              if(details.appointments != null) {
-
+            if (_calendarView == CalendarView.day) {
+              if (details.appointments != null) {
                 // TODO: Add removal confirmation dialog
                 // // Just for visual aspect
                 // setState(() {
@@ -438,8 +383,8 @@ class _ScheduleState extends State<Schedule> {
             }
           },
           appointmentTextStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
           onTap: (details) {
             setState(() {
@@ -454,7 +399,7 @@ class _ScheduleState extends State<Schedule> {
             endHour: 21,
             timeRulerSize: 60,
             timeIntervalHeight: 70,
-            timeTextStyle:TextStyle(fontSize: 16,color: Colors.black54),
+            timeTextStyle: TextStyle(fontSize: 16, color: Colors.black54),
             // nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]
           ),
         ),
