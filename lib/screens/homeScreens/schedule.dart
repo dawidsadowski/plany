@@ -5,6 +5,7 @@ import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
+import 'package:delta_squad_app/screens/homeScreens/actions/add_subject_group.dart';
 import 'package:delta_squad_app/screens/homeScreens/semester_settings.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -235,6 +236,12 @@ class _ScheduleState extends State<Schedule> {
                     MaterialPageRoute(
                         builder: (context) => const SemesterSettingsView()),
                   );
+                }else if(result == 2) {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>  AddSubjectGroup(subjects: subjects, details: _details)),
+                  );
                 }
 
                 refreshCalendar();
@@ -251,6 +258,10 @@ class _ScheduleState extends State<Schedule> {
                 const PopupMenuItem(
                   child: Text("Ustawienia semestru"),
                   value: 1,
+                ),
+                const PopupMenuItem(
+                  child: Text("Dodaj przedmiot grupowy"),
+                  value: 2,
                 ),
                   ])
         ],
