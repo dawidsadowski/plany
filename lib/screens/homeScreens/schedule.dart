@@ -26,8 +26,10 @@ class _ScheduleState extends State<Schedule> {
   CalendarTapDetails? _details;
   List<TimeTable> list = [];
   List<SubjectModel> schedule = [];
+  List<GroupCheck> grupy = [];
 
   bool isRefreshed = true;
+  bool isRefreshedGroup = true;
   bool showLectures = true;
   bool showExercises = true;
   bool showLaboratories = true;
@@ -36,7 +38,41 @@ class _ScheduleState extends State<Schedule> {
 
   @override
   void initState() {
+    getGroups();
+
     refreshCalendar();
+  }
+
+  void getGroups() {
+    if (!isRefreshedGroup) {
+      return;
+    }
+
+    isRefreshedGroup = !isRefreshedGroup;
+
+    grupy = [];
+
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    User? user = firebaseAuth.currentUser;
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.email)
+        .collection("groups")
+        .get()
+        .then((value) {
+      setState(() {
+        for (var element in value.docs) {
+          GroupCheck grup = GroupCheck(element.id, element['group'], true);
+          grupy.add(grup);
+          print(grupy.length);
+        }
+      });
+    });
+
+    setState(() {
+      isRefreshedGroup = !isRefreshedGroup;
+    });
   }
 
   void refreshCalendar() {
@@ -64,8 +100,6 @@ class _ScheduleState extends State<Schedule> {
         .doc(user!.email)
         .collection("schedule");
 
-
-
     getData(docRef, (data) {
       List<dynamic> lista = data.docs.map((doc) => doc.data()).toList();
       for (int i = 0; i < lista.length; i++) {
@@ -75,66 +109,88 @@ class _ScheduleState extends State<Schedule> {
         list.add(tt);
       }
 
-      getSchedule(scheduleRef, (data) {
-        getScheduleData(data);
-
-        for (int i = 0; i < list.length; i++) {
-          for (int j = 0; j < schedule.length; j++) {
-            if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
-              int weeek = list[i].weekOfSemester - 1;
-              if (schedule[j].weeks![weeek]) {
-                DateTime beginTime = DateTime.fromMicrosecondsSinceEpoch(
-                    schedule[j].beginTime!.microsecondsSinceEpoch);
-                DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
-                    schedule[j].endTime!.microsecondsSinceEpoch);
-
-                Color color = Colors.blue;
-
-                switch (schedule[j].type) {
-                  case SingingCharacter.lecture:
-                    if (!showLectures) continue;
-                    color = Colors.orange;
-                    break;
-                  case SingingCharacter.exercise:
-                    if (!showExercises) continue;
-                    color = Colors.teal;
-                    break;
-                  case SingingCharacter.laboratory:
-                    if (!showLaboratories) continue;
-                    color = Colors.blue;
-                    break;
-                  case SingingCharacter.seminary:
-                    if (!showSeminaries) continue;
-                    color = Colors.redAccent;
-                    break;
-                  default:
-                    if (!showOther) continue;
-                    color = Colors.grey;
-                }
-
-                setState(() {
-                  subjects.add(Subject(
-                    startTime: DateTime(list[i].year, list[i].monthOfYear,
-                        list[i].dayOfMonth, beginTime.hour, beginTime.minute),
-                    endTime: DateTime(list[i].year, list[i].monthOfYear,
-                        list[i].dayOfMonth, endTime.hour, endTime.minute),
-                    subject:
-                        '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
-                    color: color,
-                    reference: schedule[j].reference,
-                    //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
-                  ));
-                });
-              }
-            }
-          }
-        }
+      setState(() {
+        loadSchedule(firebaseFirestore, scheduleRef);
 
         setState(() {
           isRefreshed = !isRefreshed;
         });
       });
     });
+  }
+
+  Future<void> loadSchedule(FirebaseFirestore firebaseFirestore, CollectionReference<Map<String, dynamic>> scheduleRef) async {
+    for (var element in grupy) {
+
+      if(element.display==true) {
+        String ref = element.reference!.path + "/schedule";
+        print(ref);
+
+        await getSchedule(firebaseFirestore.collection(ref), (data) {
+          getScheduleData(data);
+        });
+      }
+    }
+    
+    await getSchedule(scheduleRef, (data) {
+      getScheduleData(data);
+    
+      addSubjectsToSchedule();
+    });
+  }
+
+  void addSubjectsToSchedule() {
+    for (int i = 0; i < list.length; i++) {
+      for (int j = 0; j < schedule.length; j++) {
+        if (WeekDays.values[list[i].dayOfWeek] == schedule[j].day) {
+          int weeek = list[i].weekOfSemester - 1;
+          if (schedule[j].weeks![weeek]) {
+            DateTime beginTime = DateTime.fromMicrosecondsSinceEpoch(
+                schedule[j].beginTime!.microsecondsSinceEpoch);
+            DateTime endTime = DateTime.fromMicrosecondsSinceEpoch(
+                schedule[j].endTime!.microsecondsSinceEpoch);
+
+            Color color = Colors.blue;
+
+            switch (schedule[j].type) {
+              case SingingCharacter.lecture:
+                if (!showLectures) continue;
+                color = Colors.orange;
+                break;
+              case SingingCharacter.exercise:
+                if (!showExercises) continue;
+                color = Colors.teal;
+                break;
+              case SingingCharacter.laboratory:
+                if (!showLaboratories) continue;
+                color = Colors.blue;
+                break;
+              case SingingCharacter.seminary:
+                if (!showSeminaries) continue;
+                color = Colors.redAccent;
+                break;
+              default:
+                if (!showOther) continue;
+                color = Colors.grey;
+            }
+
+            setState(() {
+              subjects.add(Subject(
+                startTime: DateTime(list[i].year, list[i].monthOfYear,
+                    list[i].dayOfMonth, beginTime.hour, beginTime.minute),
+                endTime: DateTime(list[i].year, list[i].monthOfYear,
+                    list[i].dayOfMonth, endTime.hour, endTime.minute),
+                subject:
+                    '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
+                color: color,
+                reference: schedule[j].reference,
+                //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+              ));
+            });
+          }
+        }
+      }
+    }
   }
 
   void getScheduleData(data) {
@@ -151,7 +207,7 @@ class _ScheduleState extends State<Schedule> {
           SingingCharacter.values[sch['type']],
           WeekDays.values[sch['day']],
           data.docs.elementAt(i).reference);
-
+      print(sub.name);
       List<bool> wee = sch['weeks'].cast<bool>();
       sub.weeks = wee;
 
@@ -170,6 +226,8 @@ class _ScheduleState extends State<Schedule> {
           PopupMenuButton(
               onSelected: (result) async {
                 if (result == -1) {
+                  getGroups();
+                  refreshCalendar();
                 } else if (result == 0) {
                   await Navigator.push(
                     context,
@@ -190,8 +248,6 @@ class _ScheduleState extends State<Schedule> {
                             subjects: subjects, details: _details)),
                   );
                 }
-
-                refreshCalendar();
               },
               itemBuilder: (context) => [
                     const PopupMenuItem(
@@ -336,7 +392,7 @@ class _ScheduleState extends State<Schedule> {
               ),
             ),
             Column(
-              children: getStudentGroups(),
+              children: getStudentGroups(grupy),
             ),
           ],
         ),
@@ -407,26 +463,23 @@ class _ScheduleState extends State<Schedule> {
     );
   }
 
-  List<Widget> getStudentGroups() {
-    User? user = FirebaseAuth.instance.currentUser;
+  List<Widget> getStudentGroups(List<GroupCheck> groups) {
     List<Widget> groupTiles = [];
 
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.email)
-        .collection("groups")
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        groupTiles.add(
-          CheckboxListTile(
-              title: Text(element.id),
-              controlAffinity: ListTileControlAffinity.leading,
-              value: true,
-              onChanged: (value) {}),
-        );
-      }
-    });
+    for (var element in groups) {
+      groupTiles.add(
+        CheckboxListTile(
+            title: Text(element.name!),
+            controlAffinity: ListTileControlAffinity.leading,
+            value: element.display,
+            onChanged: (value) {
+              setState(() {
+                element.display = !element.display;
+                refreshCalendar();
+              });
+            }),
+      );
+    }
 
     return groupTiles;
   }
@@ -450,7 +503,7 @@ class _ScheduleState extends State<Schedule> {
     // Get data from docs and convert map to List
   }
 
-  void getSchedule(
+  Future<void> getSchedule(
       CollectionReference collectionReference, Function function) async {
     QuerySnapshot querySnapshot = await collectionReference.get();
     function(querySnapshot);
@@ -496,4 +549,12 @@ class MeetingDataSource extends CalendarDataSource {
 
     return meetingData;
   }
+}
+
+class GroupCheck {
+  final String? name;
+  final DocumentReference? reference;
+  bool display = true;
+
+  GroupCheck(this.name, this.reference, this.display);
 }

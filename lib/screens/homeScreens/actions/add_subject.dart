@@ -580,7 +580,7 @@ class _AddSubjectState extends State<AddSubject> {
       );
       list.add(ex);
     }
-    print(list);
+    //print(list);
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: list);
   }
 

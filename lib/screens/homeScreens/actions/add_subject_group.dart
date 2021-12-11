@@ -50,7 +50,7 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
       for (var element in value.docs) {
         Group group = Group(element.id, element.reference);
 
-        print(selectedGroupList);
+        //print(selectedGroupList);
 
         for (var selectedGroup in selectedGroupList!) {
           if (selectedGroup.name == element.id) {
@@ -634,7 +634,7 @@ class _AddSubjectGroupState extends State<AddSubjectGroup> {
       );
       list.add(ex);
     }
-    print(list);
+
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: list);
   }
 
@@ -729,33 +729,6 @@ class FilterPageGroup extends StatelessWidget {
           buttonSpacing: 20,
           hideSelectedTextCount: true,
           onApplyButtonClick: (list) async {
-            // FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-            // User? user = FirebaseAuth.instance.currentUser;
-            //
-            // var batch = firebaseFirestore.batch();
-            // var collection = firebaseFirestore
-            //     .collection('users')
-            //     .doc(user!.email)
-            //     .collection('groups');
-            // var snapshots = await collection.get();
-            //
-            // for (var doc in snapshots.docs) {
-            //   await doc.reference.delete();
-            // }
-            //
-            // for (var element in list!) {
-            //   batch.set(
-            //       firebaseFirestore
-            //           .collection("users")
-            //           .doc(user.email)
-            //           .collection("groups")
-            //           .doc(element.name),
-            //       {'group': element.reference});
-            // }
-            //
-            // batch.commit();
-
-            print(list);
 
             Navigator.pop(context, list);
           },
