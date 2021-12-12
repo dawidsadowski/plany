@@ -265,6 +265,12 @@ class _ScheduleState extends State<Schedule> {
       appBar: AppBar(
         title: Text("Plan zajęć"),
         actions: [
+          IconButton(
+              icon: Icon(Icons.today),
+              onPressed: () {
+                _controller.displayDate = DateTime.now();
+              },
+          ),
           PopupMenuButton(
               onSelected: (result) async {
                 if (result == -1) {
@@ -482,11 +488,12 @@ class _ScheduleState extends State<Schedule> {
             setState(() {
               _details = details;
 
-              if(details.appointments != null && (details.appointments![0].editable || userModel.admin!)) {
-                showEditIcon = true;
-              } else {
-                showEditIcon = false;
+              showEditIcon = false;
+
+              if(details.appointments != null && details.appointments!.isNotEmpty && (details.appointments!.first!.editable || userModel.admin!)) {
+                  showEditIcon = true;
               }
+
             });
           },
           view: _calendarView,
