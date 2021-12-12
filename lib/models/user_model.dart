@@ -5,13 +5,12 @@ class UserModel {
   String? email;
   String? imie;
   String? nazwisko;
-  String? wydzial;
-  String? kierunek;
+  bool? admin;
 
 
 
 
-  UserModel({this.uid, this.email, this.imie='Przejdź do ustawień by ustawić', this.nazwisko='Przejdź do ustawień by ustawić', this.wydzial='Przejdź do ustawień by ustawić', this.kierunek='Przejdź do ustawień by ustawić'});
+  UserModel({this.uid, this.email, this.imie='Przejdź do ustawień by ustawić', this.nazwisko='Przejdź do ustawień by ustawić', this.admin=false});
 
   UserModel.fromJson(Map<String,String> json){
     imie = json["displayName"];
@@ -34,8 +33,7 @@ class UserModel {
       email: map['email'],
       imie: map['imie'],
       nazwisko: map['nazwisko'],
-      wydzial: map['wydzial'],
-      kierunek: map['kierunek'],
+      admin: map['admin'],
     );
   }
 
@@ -46,8 +44,7 @@ class UserModel {
       'email': email,
       'imie':imie,
       'nazwisko':nazwisko,
-      'wydzial':wydzial,
-      'kierunek': kierunek,
+      'admin': admin,
     };
   }
 }

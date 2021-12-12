@@ -68,16 +68,19 @@ class AuthServices with ChangeNotifier {
 
   postDetailsToFirestore(UserModel model) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
-    User? user = firebaseAuth.currentUser;
-
     print("zapis do firestore");
+
 
     await firebaseFirestore
         .collection("users")
-        .doc(model.email)
-        .set(model.sendToServerRegister());
-    Fluttertoast.showToast(msg: "Utworzono konto ");
+        .doc(model.email).get().then((value) async {
+          if(!value.exists) {
+            await firebaseFirestore
+                .collection("users")
+                .doc(model.email).set(model.sendToServerRegister());
+            Fluttertoast.showToast(msg: "Utworzono konto ");
+          }
+    });
   }
 
   Future? loginWithEmail(String email, String password) async {

@@ -1,12 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Subject extends Appointment {
   DocumentReference<Object?>? reference;
+  bool? editable;
+  SubjectModel? subjectModel;
 
   Subject({
     this.reference,
+    this.editable,
+    this.subjectModel,
     String? startTimeZone,
     String? endTimeZone,
     String? recurrenceRule,

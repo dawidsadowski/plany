@@ -12,6 +12,7 @@ class SubjectModel {
   List<bool>? weeks;
   WeekDays? day;
   DocumentReference<Object?>? reference;
+  bool? editable;
 
   SubjectModel(
       this.name,
@@ -25,7 +26,7 @@ class SubjectModel {
 
 
   SubjectModel.withoutWeeks(this.name, this.instructor, this.hall, this.beginTime,
-      this.endTime, this.type, this.day, this.reference);
+      this.endTime, this.type, this.day, this.reference, this.editable);
 
   Map<String, dynamic> sendToSchedule() {
     return {
@@ -36,7 +37,7 @@ class SubjectModel {
       'type': type!.index,
       'weeks': weeks,
       'beginTime': beginTime,
-      'endTime': endTime
+      'endTime': endTime,
     };
   }
 }
