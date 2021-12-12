@@ -1,24 +1,20 @@
-import 'dart:developer';
 import 'dart:ui';
 
-import 'dart:io' show Platform;
-import 'package:delta_squad_app/services/calendar_client.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:googleapis_auth/googleapis_auth.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
 import 'package:delta_squad_app/models/timetable_model.dart';
+import 'package:delta_squad_app/models/user_model.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject.dart';
 import 'package:delta_squad_app/screens/homeScreens/actions/add_subject_group.dart';
+import 'package:delta_squad_app/screens/homeScreens/actions/edit_subject.dart';
 import 'package:delta_squad_app/screens/homeScreens/semester_settings.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
+import 'package:delta_squad_app/services/calendar_client.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-//import 'package:googleapis/calendar/v3.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({Key? key}) : super(key: key);
@@ -28,6 +24,10 @@ class Schedule extends StatefulWidget {
 }
 
 class _ScheduleState extends State<Schedule> {
+  User? user = FirebaseAuth.instance.currentUser;
+  UserModel userModel = UserModel();
+
+
   final CalendarController _controller = CalendarController();
   CalendarView _calendarView = CalendarView.day;
   List<Subject> subjects = <Subject>[];
@@ -44,8 +44,18 @@ class _ScheduleState extends State<Schedule> {
   bool showSeminaries = true;
   bool showOther = true;
 
+  bool showEditIcon = false;
+
   @override
   void initState() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.email)
+        .get()
+        .then((value) {
+      userModel = UserModel.fromMap(value.data());
+    });
+
     initData();
   }
 
@@ -85,6 +95,8 @@ class _ScheduleState extends State<Schedule> {
     setState(() {
       isRefreshedGroup = !isRefreshedGroup;
     });
+
+    refreshCalendar();
   }
 
 
@@ -140,7 +152,7 @@ class _ScheduleState extends State<Schedule> {
         print(ref);
 
         await getSchedule(firebaseFirestore.collection(ref), (data) {
-          getScheduleData(data);
+          getScheduleData(data, false);
         });
       }
 
@@ -211,7 +223,8 @@ class _ScheduleState extends State<Schedule> {
                     '${schedule[j].name}\n${schedule[j].instructor}\n${schedule[j].hall}',
                 color: color,
                 reference: schedule[j].reference,
-                //recurrenceRule: SfCalendar.generateRRule(recurrence, beginTime, endTime)
+                editable: schedule[j].editable,
+                subjectModel: schedule[j],
               ));
             });
           }
@@ -220,7 +233,7 @@ class _ScheduleState extends State<Schedule> {
     }
   }
 
-  void getScheduleData(data) {
+  void getScheduleData(data, [editable = true]) {
     List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
 
     for (int i = 0; i < sch_pon.length; i++) {
@@ -233,7 +246,9 @@ class _ScheduleState extends State<Schedule> {
           sch['endTime'],
           SingingCharacter.values[sch['type']],
           WeekDays.values[sch['day']],
-          data.docs.elementAt(i).reference);
+          data.docs.elementAt(i).reference,
+          editable,
+      );
       print(sub.name);
       List<bool> wee = sch['weeks'].cast<bool>();
       sub.weeks = wee;
@@ -288,16 +303,16 @@ class _ScheduleState extends State<Schedule> {
                       child: Text("Ustawienia"),
                       value: 0,
                     ),
-                    const PopupMenuItem(
+                    if(userModel.admin!) const PopupMenuItem(
                       child: Text("Ustawienia semestru"),
                       value: 1,
                     ),
-                    const PopupMenuItem(
+                    if(userModel.admin!) const PopupMenuItem(
                       child: Text("Dodaj przedmiot grupowy"),
                       value: 2,
                     ),
-                    const PopupMenuItem(
-                      child: Text("Exportuj do GoogleCalendar"),
+                    if(!userModel.admin!) const PopupMenuItem(
+                      child: Text("Eksportuj do Google Calendar"),
                       value: 3,
                     ),
 
@@ -438,13 +453,15 @@ class _ScheduleState extends State<Schedule> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
+                    showEditIcon ?
+                    EditSubject(subjects: subjects, details: _details) :
                     AddSubject(subjects: subjects, details: _details)),
           );
 
           refreshCalendar();
           setState(() {});
         },
-        child: const Icon(Icons.add),
+        child: Icon(showEditIcon ? CupertinoIcons.pencil : Icons.add),
       ),
       body: SafeArea(
         child: SfCalendar(
@@ -456,22 +473,6 @@ class _ScheduleState extends State<Schedule> {
                 _controller.view = CalendarView.day;
               });
             }
-
-            // TODO: Implement Subject editing
-            if (_calendarView == CalendarView.day) {
-              if (details.appointments != null) {
-                // TODO: Add removal confirmation dialog
-                // // Just for visual aspect
-                // setState(() {
-                //   subjects.remove(_selectedSubject);
-                // });
-                //
-                // _selectedSubject!.reference!.delete().then((value) {
-                //   refreshCalendar();
-                //   Fluttertoast.showToast(msg: 'Usunięto ${_selectedSubject!.subject.split('\n')[0]}');
-                // });
-              }
-            }
           },
           appointmentTextStyle: const TextStyle(
             fontSize: 16,
@@ -480,6 +481,12 @@ class _ScheduleState extends State<Schedule> {
           onTap: (details) {
             setState(() {
               _details = details;
+
+              if(details.appointments != null && userModel.admin!) {
+                showEditIcon = true;
+              } else {
+                showEditIcon = false;
+              }
             });
           },
           view: _calendarView,
