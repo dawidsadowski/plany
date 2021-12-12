@@ -1,5 +1,12 @@
+import 'dart:developer';
 import 'dart:ui';
 
+import 'dart:io' show Platform;
+import 'package:delta_squad_app/services/calendar_client.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:googleapis_auth/googleapis_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
@@ -11,6 +18,7 @@ import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+//import 'package:googleapis/calendar/v3.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({Key? key}) : super(key: key);
@@ -78,6 +86,7 @@ class _ScheduleState extends State<Schedule> {
       isRefreshedGroup = !isRefreshedGroup;
     });
   }
+
 
   Future<void> refreshCalendar() async {
     if (!isRefreshed && !isRefreshedGroup) {
@@ -265,6 +274,11 @@ class _ScheduleState extends State<Schedule> {
                             subjects: subjects, details: _details)),
                   );
                 }
+                else if (result == 3) {
+                    DateTime startTime=DateTime.now();
+                    DateTime endTime=DateTime.now().add(const Duration(hours: 1));
+                    CalendarClient().insert("TYTUL", startTime, endTime);
+                }
 
               },
               itemBuilder: (context) => [
@@ -284,6 +298,11 @@ class _ScheduleState extends State<Schedule> {
                       child: Text("Dodaj przedmiot grupowy"),
                       value: 2,
                     ),
+                    const PopupMenuItem(
+                      child: Text("Exportuj do GoogleCalendar"),
+                      value: 3,
+                    ),
+
                   ])
         ],
       ),

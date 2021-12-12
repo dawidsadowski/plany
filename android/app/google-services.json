@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "593458370937-hcdrfgqs97icopsfhf7g59dcj3igoqor.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.delta_squad_app",
+            "certificate_hash": "68a1318d7ebad6236c3d9ec6b42b427cd4ff813c"
+          }
+        },
+        {
           "client_id": "593458370937-j85mc89b3685m549fmhqhdskmpbiq7qo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
