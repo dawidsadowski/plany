@@ -275,9 +275,7 @@ class _ScheduleState extends State<Schedule> {
                   );
                 }
                 else if (result == 3) {
-                    DateTime startTime=DateTime.now();
-                    DateTime endTime=DateTime.now().add(const Duration(hours: 1));
-                    CalendarClient().insert("TYTUL", startTime, endTime);
+                  CalendarClient().insert((subjects));
                 }
 
               },
