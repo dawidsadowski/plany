@@ -482,7 +482,7 @@ class _ScheduleState extends State<Schedule> {
             setState(() {
               _details = details;
 
-              if(details.appointments != null && userModel.admin!) {
+              if(details.appointments != null && (details.appointments![0].editable || userModel.admin!)) {
                 showEditIcon = true;
               } else {
                 showEditIcon = false;
