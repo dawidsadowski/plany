@@ -89,7 +89,7 @@ class _ScheduleState extends State<Schedule> {
 
 
   Future<void> refreshCalendar() async {
-    if (!isRefreshed && !isRefreshedGroup) {
+    if (!isRefreshed || !isRefreshedGroup) {
       return;
     }
 
