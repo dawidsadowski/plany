@@ -14,7 +14,7 @@ class CalendarClient {
       var calendar = CalendarApi(client);
       String calendarId = "primary";
       for (var element in subjects) {
-
+        if(element.startTime.isBefore(DateTime.now())) continue;
         Event event = Event(); // Create object of event
 
         event.summary = element.subject;
