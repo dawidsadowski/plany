@@ -1,5 +1,12 @@
+import 'dart:developer';
 import 'dart:ui';
 
+import 'dart:io' show Platform;
+import 'package:delta_squad_app/services/calendar_client.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:googleapis_auth/googleapis_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/classes/subject.dart';
 import 'package:delta_squad_app/models/subject_model.dart';
@@ -11,6 +18,7 @@ import 'package:delta_squad_app/screens/homeScreens/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+//import 'package:googleapis/calendar/v3.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({Key? key}) : super(key: key);
@@ -38,12 +46,16 @@ class _ScheduleState extends State<Schedule> {
 
   @override
   void initState() {
-    getGroups();
-
-    refreshCalendar();
+    initData();
   }
 
-  void getGroups() {
+  void initData() async{
+    await getGroups();
+    
+    await refreshCalendar();
+  }
+
+  Future<void> getGroups() async{
     if (!isRefreshedGroup) {
       return;
     }
@@ -75,8 +87,9 @@ class _ScheduleState extends State<Schedule> {
     });
   }
 
-  void refreshCalendar() {
-    if (!isRefreshed) {
+
+  Future<void> refreshCalendar() async {
+    if (!isRefreshed && !isRefreshedGroup) {
       return;
     }
 
@@ -130,13 +143,27 @@ class _ScheduleState extends State<Schedule> {
           getScheduleData(data);
         });
       }
+
+      if(element==grupy[grupy.length-1])
+        {
+          await getSchedule(scheduleRef, (data) {
+            getScheduleData(data);
+
+            addSubjectsToSchedule();
+          });
+        }
     }
-    
-    await getSchedule(scheduleRef, (data) {
-      getScheduleData(data);
-    
-      addSubjectsToSchedule();
-    });
+
+    if(grupy.isEmpty)
+      {
+        await getSchedule(scheduleRef, (data) {
+          getScheduleData(data);
+
+          addSubjectsToSchedule();
+        });
+      }
+
+
   }
 
   void addSubjectsToSchedule() {
@@ -226,8 +253,7 @@ class _ScheduleState extends State<Schedule> {
           PopupMenuButton(
               onSelected: (result) async {
                 if (result == -1) {
-                  getGroups();
-                  refreshCalendar();
+                  initData();
                 } else if (result == 0) {
                   await Navigator.push(
                     context,
@@ -248,6 +274,10 @@ class _ScheduleState extends State<Schedule> {
                             subjects: subjects, details: _details)),
                   );
                 }
+                else if (result == 3) {
+                  CalendarClient().insert((subjects));
+                }
+
               },
               itemBuilder: (context) => [
                     const PopupMenuItem(
@@ -266,6 +296,11 @@ class _ScheduleState extends State<Schedule> {
                       child: Text("Dodaj przedmiot grupowy"),
                       value: 2,
                     ),
+                    const PopupMenuItem(
+                      child: Text("Exportuj do GoogleCalendar"),
+                      value: 3,
+                    ),
+
                   ])
         ],
       ),
