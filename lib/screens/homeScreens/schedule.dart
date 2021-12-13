@@ -399,7 +399,7 @@ class _ScheduleState extends State<Schedule> {
               padding: EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text(
                     "Delta Szwadron",
                     style: TextStyle(
@@ -408,7 +408,7 @@ class _ScheduleState extends State<Schedule> {
                       color: Colors.black54,
                     ),
                   ),
-                  Icon(Icons.today, color: Colors.black54),
+                  Center(child: Image.asset('assets/app-logo.png', width: 42, height: 42,)),
                 ],
               ),
             ),
