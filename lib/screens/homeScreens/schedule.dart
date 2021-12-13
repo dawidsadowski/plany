@@ -262,11 +262,14 @@ class _ScheduleState extends State<Schedule> {
       appBar: AppBar(
         title: Text("Plan zajęć"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.today),
-            onPressed: () {
-              _controller.displayDate = DateTime.now();
-            },
+          Tooltip(
+            message: "Skocz do dzisiejszej daty",
+            child: IconButton(
+              icon: Icon(Icons.today),
+              onPressed: () {
+                _controller.displayDate = DateTime.now();
+              },
+            ),
           ),
           PopupMenuButton(
               onSelected: (result) async {
