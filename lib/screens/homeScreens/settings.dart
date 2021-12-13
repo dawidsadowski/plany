@@ -26,24 +26,6 @@ class _SettingsViewState extends State<SettingsView> {
                     image:  AssetImage('assets/logo.png')
                 ),
                 SizedBox(height: 30),
-                SizedBox(height: 30),
-                MaterialButton(
-                  height: 60,
-                  minWidth: double.infinity,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Text('Dołącz do grupy'),
-                  onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const GroupSettings()),
-                    );
-                  },
-                ),
-                SizedBox(height: 30),
                 MaterialButton(
                   height: 60,
                   minWidth: double.infinity,
@@ -69,23 +51,12 @@ class _SettingsViewState extends State<SettingsView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: const Text('Eksportuj plan do kalendarza'),
+                  child: const Text('Grupy'),
                   onPressed: (){
-                    //Navigator.pop(context);
-                  },
-                ),
-                SizedBox(height: 30),
-                MaterialButton(
-                  height: 60,
-                  minWidth: double.infinity,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Text('Udostępnij swój plan'),
-                  onPressed: (){
-                    //Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const GroupSettings()),
+                    );
                   },
                 ),
               ],

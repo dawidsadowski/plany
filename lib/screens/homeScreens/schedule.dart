@@ -10,10 +10,12 @@ import 'package:delta_squad_app/screens/homeScreens/actions/add_subject_group.da
 import 'package:delta_squad_app/screens/homeScreens/actions/edit_subject.dart';
 import 'package:delta_squad_app/screens/homeScreens/semester_settings.dart';
 import 'package:delta_squad_app/screens/homeScreens/settings.dart';
+import 'package:delta_squad_app/services/authentication/auth_services.dart';
 import 'package:delta_squad_app/services/calendar_client.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Schedule extends StatefulWidget {
@@ -24,9 +26,10 @@ class Schedule extends StatefulWidget {
 }
 
 class _ScheduleState extends State<Schedule> {
+  static const double boxWidth = 10;
+
   User? user = FirebaseAuth.instance.currentUser;
   UserModel userModel = UserModel();
-
 
   final CalendarController _controller = CalendarController();
   CalendarView _calendarView = CalendarView.day;
@@ -43,7 +46,6 @@ class _ScheduleState extends State<Schedule> {
   bool showLaboratories = true;
   bool showSeminaries = true;
   bool showOther = true;
-
   bool showEditIcon = false;
 
   @override
@@ -59,13 +61,13 @@ class _ScheduleState extends State<Schedule> {
     initData();
   }
 
-  void initData() async{
+  void initData() async {
     await getGroups();
-    
+
     await refreshCalendar();
   }
 
-  Future<void> getGroups() async{
+  Future<void> getGroups() async {
     if (!isRefreshedGroup) {
       return;
     }
@@ -98,7 +100,6 @@ class _ScheduleState extends State<Schedule> {
 
     refreshCalendar();
   }
-
 
   Future<void> refreshCalendar() async {
     if (!isRefreshed || !isRefreshedGroup) {
@@ -144,10 +145,10 @@ class _ScheduleState extends State<Schedule> {
     });
   }
 
-  Future<void> loadSchedule(FirebaseFirestore firebaseFirestore, CollectionReference<Map<String, dynamic>> scheduleRef) async {
+  Future<void> loadSchedule(FirebaseFirestore firebaseFirestore,
+      CollectionReference<Map<String, dynamic>> scheduleRef) async {
     for (var element in grupy) {
-
-      if(element.display==true) {
+      if (element.display == true) {
         String ref = element.reference!.path + "/schedule";
         print(ref);
 
@@ -156,26 +157,22 @@ class _ScheduleState extends State<Schedule> {
         });
       }
 
-      if(element==grupy[grupy.length-1])
-        {
-          await getSchedule(scheduleRef, (data) {
-            getScheduleData(data);
-
-            addSubjectsToSchedule();
-          });
-        }
-    }
-
-    if(grupy.isEmpty)
-      {
+      if (element == grupy[grupy.length - 1]) {
         await getSchedule(scheduleRef, (data) {
           getScheduleData(data);
 
           addSubjectsToSchedule();
         });
       }
+    }
 
+    if (grupy.isEmpty) {
+      await getSchedule(scheduleRef, (data) {
+        getScheduleData(data);
 
+        addSubjectsToSchedule();
+      });
+    }
   }
 
   void addSubjectsToSchedule() {
@@ -234,20 +231,20 @@ class _ScheduleState extends State<Schedule> {
   }
 
   void getScheduleData(data, [editable = true]) {
-    List<dynamic> sch_pon = data.docs.map((doc) => doc.data()).toList();
+    List<dynamic> schPon = data.docs.map((doc) => doc.data()).toList();
 
-    for (int i = 0; i < sch_pon.length; i++) {
-      dynamic sch = sch_pon.elementAt(i);
+    for (int i = 0; i < schPon.length; i++) {
+      dynamic sch = schPon.elementAt(i);
       SubjectModel sub = SubjectModel.withoutWeeks(
-          sch['name'],
-          sch['instructor'],
-          sch['hall'],
-          sch['beginTime'],
-          sch['endTime'],
-          SingingCharacter.values[sch['type']],
-          WeekDays.values[sch['day']],
-          data.docs.elementAt(i).reference,
-          editable,
+        sch['name'],
+        sch['instructor'],
+        sch['hall'],
+        sch['beginTime'],
+        sch['endTime'],
+        SingingCharacter.values[sch['type']],
+        WeekDays.values[sch['day']],
+        data.docs.elementAt(i).reference,
+        editable,
       );
       print(sub.name);
       List<bool> wee = sch['weeks'].cast<bool>();
@@ -266,10 +263,10 @@ class _ScheduleState extends State<Schedule> {
         title: Text("Plan zajęć"),
         actions: [
           IconButton(
-              icon: Icon(Icons.today),
-              onPressed: () {
-                _controller.displayDate = DateTime.now();
-              },
+            icon: Icon(Icons.today),
+            onPressed: () {
+              _controller.displayDate = DateTime.now();
+            },
           ),
           PopupMenuButton(
               onSelected: (result) async {
@@ -294,34 +291,101 @@ class _ScheduleState extends State<Schedule> {
                         builder: (context) => AddSubjectGroup(
                             subjects: subjects, details: _details)),
                   );
-                }
-                else if (result == 3) {
+                } else if (result == 3) {
                   CalendarClient().insert((subjects));
+                } else if (result == 4) {
+                  final loginProvider =
+                      Provider.of<AuthServices>(context, listen: false);
+                  await loginProvider.logout();
                 }
-
               },
               itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      child: Text("Odśwież"),
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.refresh,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: boxWidth),
+                          Text("Odśwież"),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
                       value: -1,
                     ),
-                    const PopupMenuItem(
-                      child: Text("Ustawienia"),
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.settings,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: boxWidth),
+                          Text("Ustawienia"),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
                       value: 0,
                     ),
-                    if(userModel.admin!) const PopupMenuItem(
-                      child: Text("Ustawienia semestru"),
-                      value: 1,
-                    ),
-                    if(userModel.admin!) const PopupMenuItem(
-                      child: Text("Dodaj przedmiot grupowy"),
-                      value: 2,
-                    ),
-                    if(!userModel.admin!) const PopupMenuItem(
-                      child: Text("Eksportuj do Google Calendar"),
+                    if (userModel.admin!)
+                      PopupMenuItem(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: boxWidth),
+                            Text("Ustawienia semestru"),
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        value: 1,
+                      ),
+                    if (userModel.admin!)
+                      PopupMenuItem(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.group_add,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: boxWidth),
+                            Text("Dodaj przedmiot grupowy"),
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        value: 2,
+                      ),
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.share,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: boxWidth),
+                          Text("Eksportuj do Google Calendar"),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
                       value: 3,
                     ),
-
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.logout,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: boxWidth),
+                          Text("Wyloguj się"),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
+                      value: 4,
+                    ),
                   ])
         ],
       ),
@@ -458,10 +522,9 @@ class _ScheduleState extends State<Schedule> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    showEditIcon ?
-                    EditSubject(subjects: subjects, details: _details) :
-                    AddSubject(subjects: subjects, details: _details)),
+                builder: (context) => showEditIcon
+                    ? EditSubject(subjects: subjects, details: _details)
+                    : AddSubject(subjects: subjects, details: _details)),
           );
 
           refreshCalendar();
@@ -490,10 +553,11 @@ class _ScheduleState extends State<Schedule> {
 
               showEditIcon = false;
 
-              if(details.appointments != null && details.appointments!.isNotEmpty && (details.appointments!.first!.editable || userModel.admin!)) {
-                  showEditIcon = true;
+              if (details.appointments != null &&
+                  details.appointments!.isNotEmpty &&
+                  (details.appointments!.first!.editable || userModel.admin!)) {
+                showEditIcon = true;
               }
-
             });
           },
           view: _calendarView,

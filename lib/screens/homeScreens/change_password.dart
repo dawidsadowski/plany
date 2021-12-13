@@ -34,6 +34,9 @@ class _ChangePasswordState extends State<ChangePassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Zmiana hasła"),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -43,14 +46,6 @@ class _ChangePasswordState extends State<ChangePassword> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.arrow_back_ios,
-                          color: Theme.of(context).primaryColor)),
-                  SizedBox(height: 20),
-                  SizedBox(height: 30),
                   TextFormField(
                     controller: _oldPasswordController,
                     decoration: InputDecoration(

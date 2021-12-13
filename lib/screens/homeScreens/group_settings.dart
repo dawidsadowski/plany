@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class GroupSettings extends StatefulWidget {
   const GroupSettings({Key? key}) : super(key: key);
-  final String title = 'Grupy';
+  final String title = 'Twoje grupy';
 
   @override
   _GroupSettingsState createState() => _GroupSettingsState();
