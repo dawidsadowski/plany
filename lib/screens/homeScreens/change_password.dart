@@ -33,23 +33,35 @@ class _ChangePasswordState extends State<ChangePassword> {
     super.dispose();
   }
 
-  showInfoDialog(BuildContext context) {
+  showInfoDialog(BuildContext context, bool success) {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("OK"),
       onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-        Navigator.of(context).pop();
+        if (success) {
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.of(context).pop();
+        }
+        else Navigator.of(context, rootNavigator: true).pop();
       },
     );
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("Zmiana hasła"),
-      content: Text("Zmieniono hasło"),
-      actions: [
-        cancelButton,
-      ],
-    );
+    AlertDialog alert;
+    if (success)
+      alert = AlertDialog(
+        title: Text("Zmiana hasła"),
+        content: Text("Zmieniono hasło"),
+        actions: [
+          cancelButton,
+        ],
+      );
+    else
+      alert = AlertDialog(
+        title: Text("Zmiana hasła"),
+        content: Text("Podano złe hasło"),
+        actions: [
+          cancelButton,
+        ],
+      );
 
     showDialog(
       context: context,
@@ -58,7 +70,6 @@ class _ChangePasswordState extends State<ChangePassword> {
       },
     );
   }
-
 
   showConfirmDialog(BuildContext context) {
     Widget cancelButton = TextButton(
@@ -75,7 +86,6 @@ class _ChangePasswordState extends State<ChangePassword> {
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
         _changePassword();
-
       },
     );
     // set up the AlertDialog
@@ -97,21 +107,23 @@ class _ChangePasswordState extends State<ChangePassword> {
   }
 
   void _changePassword() async {
-
-      print(firebaseAuth.currentUser!.email!);
-      print(_oldPasswordController.text);
-      User? user = firebaseAuth.currentUser;
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+    User? user = firebaseAuth.currentUser;
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: firebaseAuth.currentUser!.email!,
         password: _oldPasswordController.text,
       );
-
-
-     user?.updatePassword(_newPasswordController.text).then((value) {
-       showInfoDialog(context);
-     });
-
-
+      user?.updatePassword(_newPasswordController.text).then((value) {
+        showInfoDialog(context, true);
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        showInfoDialog(context, false);
+      }
+    }
   }
 
   @override
@@ -131,16 +143,41 @@ class _ChangePasswordState extends State<ChangePassword> {
                 children: [
                   TextFormField(
                     controller: _oldPasswordController,
+                    validator: (val) {
+                      if (val!.length < 6)
+                        return "Wprowadź więcej niż 6 znaków";
+                      return null;
+                    },
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
                         label: Text("Stare hasło"),
-                        prefixIcon: const Icon(Icons.vpn_key),
+                        prefixIcon: Icon(Icons.vpn_key),
+                        suffixIcon: IconButton(
+                            splashColor: Colors.transparent,
+                            icon: Icon(_passwordVisible
+                                ? Icons.remove_red_eye_rounded
+                                : Icons.remove_red_eye_outlined),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            }),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10))),
                   ),
                   SizedBox(height: 30),
                   TextFormField(
                     controller: _newPasswordController,
+                    validator: (val) {
+                      if (val!.length < 6)
+                        return "Wprowadź więcej niż 6 znaków";
+                      print(val);
+                      if (val != _newPasswordCheckController.text)
+                        return "Hasła się nie zgadzają";
+                      if (val == _oldPasswordController.text)
+                        return "Nowe hasło jest takie samo jak stare";
+                      return null;
+                    },
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
                         label: Text("Nowe hasło"),
@@ -161,6 +198,16 @@ class _ChangePasswordState extends State<ChangePassword> {
                   SizedBox(height: 30),
                   TextFormField(
                     controller: _newPasswordCheckController,
+                    validator: (val) {
+                      print(val);
+                      if (val!.length < 6)
+                        return "Wprowadź więcej niż 6 znaków";
+                      if (val != _newPasswordController.text)
+                        return "Hasła się nie zgadzają";
+                      if (val == _oldPasswordController.text)
+                        return "Nowe hasło jest takie samo jak stare";
+                      return null;
+                    },
                     obscureText: !_passwordVisible,
                     decoration: InputDecoration(
                         label: Text("Powtórz nowe hasło"),
@@ -181,8 +228,13 @@ class _ChangePasswordState extends State<ChangePassword> {
                   SizedBox(height: 30),
                   MaterialButton(
                       onPressed: () {
-                        //todo: logika i backend
-                        showConfirmDialog(context);
+                        if (_formKey.currentState!.validate()) {
+                          if (_newPasswordController.text !=
+                              _newPasswordCheckController.text) {
+                            //print("ROZNE HASLA");
+                          } else
+                            showConfirmDialog(context);
+                        }
                       },
                       height: 60,
                       minWidth: double.infinity,

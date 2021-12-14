@@ -1,4 +1,5 @@
 import 'package:delta_squad_app/screens/homeScreens/group_settings.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'change_password.dart';
 
@@ -26,6 +27,7 @@ class _SettingsViewState extends State<SettingsView> {
                     image:  AssetImage('assets/logo.png')
                 ),
                 SizedBox(height: 30),
+                if(FirebaseAuth.instance.currentUser?.providerData[0].providerId=='password')
                 MaterialButton(
                   height: 60,
                   minWidth: double.infinity,
