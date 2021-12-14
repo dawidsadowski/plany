@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChangePassword extends StatefulWidget {
@@ -13,6 +14,8 @@ class _ChangePasswordState extends State<ChangePassword> {
   late TextEditingController _newPasswordCheckController;
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
+
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -30,6 +33,86 @@ class _ChangePasswordState extends State<ChangePassword> {
     super.dispose();
   }
 
+  showInfoDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context).pop();
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Zmiana hasła"),
+      content: Text("Zmieniono hasło"),
+      actions: [
+        cancelButton,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+
+  showConfirmDialog(BuildContext context) {
+    Widget cancelButton = TextButton(
+      child: Text("Anuluj"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: Text(
+        "Zmień hasło",
+        style: TextStyle(color: Colors.red),
+      ),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        _changePassword();
+
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Zmiana hasła"),
+      content: Text("Czy chcesz zmienić hasło?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _changePassword() async {
+
+      print(firebaseAuth.currentUser!.email!);
+      print(_oldPasswordController.text);
+      User? user = firebaseAuth.currentUser;
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: firebaseAuth.currentUser!.email!,
+        password: _oldPasswordController.text,
+      );
+
+
+     user?.updatePassword(_newPasswordController.text).then((value) {
+       showInfoDialog(context);
+     });
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +131,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                 children: [
                   TextFormField(
                     controller: _oldPasswordController,
+                    obscureText: !_passwordVisible,
                     decoration: InputDecoration(
                         label: Text("Stare hasło"),
                         prefixIcon: const Icon(Icons.vpn_key),
@@ -98,6 +182,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                   MaterialButton(
                       onPressed: () {
                         //todo: logika i backend
+                        showConfirmDialog(context);
                       },
                       height: 60,
                       minWidth: double.infinity,
