@@ -52,10 +52,6 @@ class _RegisterState extends State<Register> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.arrow_back_ios,
-                          color: Theme.of(context).primaryColor)),
                   SizedBox(height: 30),
                   Text(
                     "Rejestracja",

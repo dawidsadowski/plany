@@ -321,31 +321,16 @@ class _ScheduleState extends State<Schedule> {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.settings,
+                            Icons.share,
                             color: Colors.black,
                           ),
                           SizedBox(width: boxWidth),
-                          Text("Ustawienia"),
+                          Text("Eksportuj do Google Calendar"),
                         ],
                         mainAxisAlignment: MainAxisAlignment.start,
                       ),
-                      value: 0,
+                      value: 3,
                     ),
-                    if (userModel.admin!)
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              color: Colors.black,
-                            ),
-                            SizedBox(width: boxWidth),
-                            Text("Ustawienia semestru"),
-                          ],
-                          mainAxisAlignment: MainAxisAlignment.start,
-                        ),
-                        value: 1,
-                      ),
                     if (userModel.admin!)
                       PopupMenuItem(
                         child: Row(
@@ -361,19 +346,34 @@ class _ScheduleState extends State<Schedule> {
                         ),
                         value: 2,
                       ),
+                    if (userModel.admin!)
+                      PopupMenuItem(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: boxWidth),
+                            Text("Ustawienia semestru"),
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        value: 1,
+                      ),
                     PopupMenuItem(
                       child: Row(
                         children: [
                           Icon(
-                            Icons.share,
+                            Icons.settings,
                             color: Colors.black,
                           ),
                           SizedBox(width: boxWidth),
-                          Text("Eksportuj do Google Calendar"),
+                          Text("Ustawienia"),
                         ],
                         mainAxisAlignment: MainAxisAlignment.start,
                       ),
-                      value: 3,
+                      value: 0,
                     ),
                     PopupMenuItem(
                       child: Row(
@@ -408,7 +408,12 @@ class _ScheduleState extends State<Schedule> {
                       color: Colors.black54,
                     ),
                   ),
-                  Center(child: Image.asset('assets/app-logo.png', width: 42, height: 42,)),
+                  Center(
+                      child: Image.asset(
+                    'assets/app-logo.png',
+                    width: 42,
+                    height: 42,
+                  )),
                 ],
               ),
             ),

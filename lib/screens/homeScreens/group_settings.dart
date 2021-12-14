@@ -31,7 +31,8 @@ class _GroupSettingsState extends State<GroupSettings> {
         .then((value) {
       for (var element in value.docs) {
         setState(() {
-          var reference = FirebaseFirestore.instance.collection("groups").doc(element.id);
+          var reference =
+              FirebaseFirestore.instance.collection("groups").doc(element.id);
           selectedGroupList!.add(Group(element.id, reference));
         });
       }
@@ -42,8 +43,8 @@ class _GroupSettingsState extends State<GroupSettings> {
 
           print(selectedGroupList);
 
-          for(var selectedGroup in selectedGroupList!) {
-            if(selectedGroup.name == element.id) {
+          for (var selectedGroup in selectedGroupList!) {
+            if (selectedGroup.name == element.id) {
               group = selectedGroup;
             }
           }
@@ -76,8 +77,8 @@ class _GroupSettingsState extends State<GroupSettings> {
               context,
               MaterialPageRoute(
                 builder: (context) => FilterPage(
-                  allTextList: groupList,
-                  selectedUserList: selectedGroupList,
+                  groupList: groupList,
+                  selectedGroupList: selectedGroupList,
                 ),
               ),
             );
@@ -113,22 +114,125 @@ class _GroupSettingsState extends State<GroupSettings> {
   }
 }
 
-class FilterPage extends StatelessWidget {
-  const FilterPage({Key? key, this.allTextList, this.selectedUserList})
+class FilterPage extends StatefulWidget {
+  const FilterPage({Key? key, this.groupList, this.selectedGroupList})
       : super(key: key);
-  final List<Group>? allTextList;
-  final List<Group>? selectedUserList;
+  final List<Group>? groupList;
+  final List<Group>? selectedGroupList;
+
+  @override
+  State<FilterPage> createState() => _FilterPageState();
+}
+
+class _FilterPageState extends State<FilterPage> {
+  User? user = FirebaseAuth.instance.currentUser;
+  UserModel userModel = UserModel();
+
+
+  @override
+  void initState() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.email)
+        .get()
+        .then((value) {
+      userModel = UserModel.fromMap(value.data());
+    });
+  }
+
+  TextEditingController _groupNameController = TextEditingController();
+  var _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Wybór grup"),
+        actions: [
+          if(userModel.admin!) PopupMenuButton(
+              onSelected: (index) async {
+                if (index == 0) {
+                  _groupNameController.text = '';
+                  await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Dodawanie grupy"),
+                          content: StatefulBuilder(builder:
+                              (BuildContext context, StateSetter setState) {
+                            return SingleChildScrollView(
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        TextFormField(
+                                          controller: _groupNameController,
+                                          validator: (val) =>
+                                          val!.length < 2 ? "Wprowadź więcej niż 2 znaki" : null,
+                                          decoration: InputDecoration(
+                                              label: Text("Nazwa grupy"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                          actions: [
+                            MaterialButton(
+                              textColor: Colors.blue,
+                              child: Text('Dodaj'),
+                              onPressed: () async {
+                                if(_formKey.currentState!.validate()) {
+                                  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+                                  await firebaseFirestore
+                                      .collection("groups")
+                                      .doc(_groupNameController.text)
+                                      .set({"name": _groupNameController.text});
+                                  Navigator.pop(context);
+                                }
+                              }
+                            ),
+                            MaterialButton(
+                              textColor: Colors.blue,
+                              child: Text('Anuluj'),
+                              onPressed: () {
+                                setState(() {
+                                  Navigator.pop(context);
+                                });
+                              },
+                            ),
+                          ],
+                        );
+                      });
+                }
+              },
+              itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.group_add,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 10),
+                          Text("Dodaj grupę"),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
+                      value: 0,
+                    ),
+                  ])
+        ],
       ),
       body: SafeArea(
         child: FilterListWidget<Group>(
-          listData: allTextList,
-          selectedListData: selectedUserList,
+          listData: widget.groupList,
+          selectedListData: widget.selectedGroupList,
           hideHeaderText: true,
           searchFieldHintText: "Wyszukaj grupy",
           allButtonText: "Wszystkie",

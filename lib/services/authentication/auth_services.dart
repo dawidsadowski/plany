@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delta_squad_app/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -99,6 +100,7 @@ class AuthServices with ChangeNotifier {
       setLoading(false);
       print(e.message);
       setMessage(e.message);
+      Fluttertoast.showToast(msg: "Nieprawidłowy adres e-mail lub hasło.");
     } catch (e) {
       setLoading(false);
       setMessage("Wystąpił nieznany błąd.");
